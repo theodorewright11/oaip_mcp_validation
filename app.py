@@ -90,9 +90,12 @@ if st.button("💾 Save / Update Classification"):
         else:
             existing = pd.concat([existing, pd.DataFrame([new_row])], ignore_index=True)
 
-        existing.to_csv(output_path, index=False)
+        # Write back to Google Sheets
+        conn.update(existing)
         st.success(f"Saved/updated classification for: {selected_title}")
 
 # --- View table ---
 if st.checkbox("Show saved classifications"):
     st.dataframe(existing.sort_values("timestamp", ascending=False))
+
+
