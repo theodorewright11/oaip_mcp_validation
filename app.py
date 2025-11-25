@@ -86,7 +86,7 @@ if st.button("💾 Save / Update Classification"):
         else:
             existing = pd.concat([existing, pd.DataFrame([new_row])], ignore_index=True)
 
-        conn.update(existing)
+        conn.update(data=existing)
         st.success(f"Saved/updated classification for: {selected_title}")
 
 # --- Optional: view current table ---
