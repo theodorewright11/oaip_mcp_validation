@@ -33,9 +33,31 @@ df = pd.read_csv("options.csv")            # GWA–IWA–DWA–Task hierarchy
 examples = pd.read_csv("examples.csv")  
 
 # Build quick lookup dictionaries
-gwa_lookup = df.set_index("iwa_title")["gwa_title"].to_dict()
-iwa_lookup = df.set_index("dwa_title")[["gwa_title", "iwa_title"]].to_dict(orient="index")
-dwa_lookup = df.set_index("task")[["gwa_title", "iwa_title", "dwa_title"]].to_dict(orient="index")
+# --- Lookup dictionaries for showing context ---
+gwa_lookup = (
+    df[["gwa_title", "iwa_title"]]
+    .dropna()
+    .drop_duplicates(subset=["iwa_title"])
+    .set_index("iwa_title")["gwa_title"]
+    .to_dict()
+)
+
+iwa_lookup = (
+    df[["gwa_title", "iwa_title", "dwa_title"]]
+    .dropna()
+    .drop_duplicates(subset=["dwa_title"])
+    .set_index("dwa_title")[["gwa_title", "iwa_title"]]
+    .to_dict(orient="index")
+)
+
+dwa_lookup = (
+    df[["gwa_title", "iwa_title", "dwa_title", "task"]]
+    .dropna()
+    .drop_duplicates(subset=["task"])
+    .set_index("task")[["gwa_title", "iwa_title", "dwa_title"]]
+    .to_dict(orient="index")
+)
+
    # MCP examples (title, url, text_for_llm, bucket)
 
 # --- Helper functions ---
