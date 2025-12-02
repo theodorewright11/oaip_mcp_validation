@@ -107,7 +107,7 @@ selected_tasks = st.multiselect("Select Task(s):", task_options, default=task_de
 
 # --- Notes field ---
 notes_default = saved.get("notes", "") if saved else ""
-notes_text = st.text_area("📝 Notes (optional):", value=notes_default, height=120)
+notes_text = st.text_area("Notes:", value=notes_default, height=120)
 
 
 # --- Save to Google Sheets ---
