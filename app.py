@@ -21,7 +21,7 @@ def get_tasks(selected_dwas):
 
 # --- Connect to Google Sheets ---
 conn = st.connection("gsheets", type=GSheetsConnection)
-existing = conn.read(ttl=5)
+existing = conn.read(spreadsheet="https://docs.google.com/spreadsheets/d/1FfvnrD2y8Cbdrwn5vai07F1HAsN9jvTXaFyLJ6Z20Ps/edit?gid=0#gid=0", usecols=list(range(8)))
 
 expected_cols = ["timestamp","title","url","bucket","gwa","iwa","dwa","task"]
 if existing is None or existing.empty or not set(expected_cols).issubset(existing.columns):
@@ -48,19 +48,19 @@ if selected_title and not existing.empty:
 
 # --- Dropdowns with pre-selected values ---
 gwas_options = sorted(df["gwa_title"].unique())
-gwa_defaults = [x for x in saved.get("gwa","").split("; ") if x in gwas_options]
+gwa_defaults = [x for x in str(saved.get("gwa", "") or "").split("; ") if x in gwas_options]
 selected_gwas = st.multiselect("Select GWA(s):", gwas_options, default=gwa_defaults)
 
 iwa_options = get_iwas(selected_gwas)
-iwa_defaults = [x for x in saved.get("iwa","").split("; ") if x in iwa_options]
+iwa_defaults = [x for x in str(saved.get("iwa", "") or "").split("; ") if x in iwa_options]
 selected_iwas = st.multiselect("Select IWA(s):", iwa_options, default=iwa_defaults) if selected_gwas else []
 
 dwa_options = get_dwas(selected_iwas)
-dwa_defaults = [x for x in saved.get("dwa","").split("; ") if x in dwa_options]
+dwa_defaults = [x for x in str(saved.get("dwa", "") or "").split("; ") if x in dwa_options]
 selected_dwas = st.multiselect("Select DWA(s):", dwa_options, default=dwa_defaults) if selected_iwas else []
 
 task_options = get_tasks(selected_dwas)
-task_defaults = [x for x in saved.get("task","").split("; ") if x in task_options]
+task_defaults = [x for x in str(saved.get("task", "") or "").split("; ") if x in task_options]
 selected_tasks = st.multiselect("Select Task(s):", task_options, default=task_defaults) if selected_dwas else []
 
 # --- Save to Google Sheets ---

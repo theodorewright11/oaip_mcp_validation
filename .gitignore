@@ -16,3 +16,4 @@ data/classifications.csv
 Thumbs.db
 
 .streamlit/secrets.toml
+gsheets-connection
