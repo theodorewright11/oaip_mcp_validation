@@ -31,28 +31,35 @@ st.set_page_config(page_title="MCP Labeling Tool", layout="wide")
 st.markdown(
     """
     <style>
-    /* make multiselect tags wrap vertically and fully visible */
+    /* Make multiselect tag text wrap properly */
     div[data-baseweb="tag"] {
+        max-width: 100% !important;
         white-space: normal !important;
-        height: auto !important;
+        overflow-wrap: break-word !important;
+        word-break: break-word !important;
         line-height: 1.3em !important;
+        height: auto !important;
+        display: flex;
+        align-items: flex-start;
     }
 
-    /* allow multiselect container to expand */
+    /* Allow the multiselect container to wrap multiple lines of tags */
     div[data-baseweb="select"] > div {
+        flex-wrap: wrap !important;
         max-height: none !important;
         overflow-y: visible !important;
-        flex-wrap: wrap !important;
     }
 
-    /* make text wrap instead of cutting off */
+    /* Prevent truncation of tag text inside the pill */
     span[data-baseweb="tag-text"] {
+        display: block !important;
         white-space: normal !important;
     }
     </style>
     """,
     unsafe_allow_html=True,
 )
+
 
 
 # --- Load static data ---
