@@ -5,28 +5,28 @@ from streamlit_gsheets import GSheetsConnection
 
 # --- Basic password protection ---
 def check_password():
+    """Returns `True` if the user entered the correct password."""
+    if st.session_state.get("password_correct", False):
+        # already logged in — don't show input again
+        return True
+
     password = st.sidebar.text_input("Enter password", type="password")
     secret_pass = str(st.secrets.get("app_password", "")).strip().strip('"')
 
-    st.sidebar.write(f"(Debug) Entered: {password!r}, Secret: {secret_pass!r}")
-
-    # ✅ Only check if user typed something
     if password and password.strip() == secret_pass:
         st.session_state["password_correct"] = True
         st.sidebar.success("✅ Access granted")
-        return True
+        # force rerun to clear the input box
+        st.experimental_rerun()
     elif password:
         st.sidebar.error("❌ Incorrect password")
-        return False
-    else:
-        return False
 
-if "password_correct" not in st.session_state:
-    st.session_state["password_correct"] = False
+    return False
 
-if not st.session_state["password_correct"]:
-    if not check_password():
-        st.stop()
+
+# --- Lock the app if password not correct ---
+if not check_password():
+    st.stop()
 
 st.set_page_config(page_title="MCP Labeling Tool", layout="wide")
 
