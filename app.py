@@ -21,11 +21,30 @@ def get_tasks(selected_dwas):
 
 # --- Connect to Google Sheets ---
 conn = st.connection("gsheets", type=GSheetsConnection)
-existing = conn.read(spreadsheet="https://docs.google.com/spreadsheets/d/1FfvnrD2y8Cbdrwn5vai07F1HAsN9jvTXaFyLJ6Z20Ps/edit?gid=0#gid=0", usecols=list(range(8)))
+
+# --- Team member selection ---
+st.sidebar.header("👥 Select Team Member")
+user_choice = st.sidebar.selectbox("Who are you?", ["Teddy", "Alice", "Eric"])
+
+sheet_urls = {
+    "Teddy": "https://docs.google.com/spreadsheets/d/1FfvnrD2y8Cbdrwn5vai07F1HAsN9jvTXaFyLJ6Z20Ps/edit?usp=sharing",
+    "Alice": "https://docs.google.com/spreadsheets/d/1ZKAty55cCkJvaW1RhqQa6uyZjS-YKc4fSwwCTfDeT-Y/edit?usp=sharing",
+    "Eric": "https://docs.google.com/spreadsheets/d/1NIg1FOkVRIqxY5zDv4cXsiHYrxbDUQOiXdxPGOsU2L4/edit?usp=sharing"
+}
+
+current_sheet = sheet_urls[user_choice]
+
+# --- Load that sheet ---
+try:
+    existing = conn.read(spreadsheet=current_sheet, usecols=list(range(8)))
+except Exception as e:
+    st.warning(f"Could not load sheet for {user_choice}: {e}")
+    existing = pd.DataFrame()
 
 expected_cols = ["timestamp","title","url","bucket","gwa","iwa","dwa","task"]
 if existing is None or existing.empty or not set(expected_cols).issubset(existing.columns):
     existing = pd.DataFrame(columns=expected_cols)
+
 
 # --- App UI ---
 st.title("🧩 MCP Classification Tool")
@@ -86,7 +105,7 @@ if st.button("💾 Save / Update Classification"):
         else:
             existing = pd.concat([existing, pd.DataFrame([new_row])], ignore_index=True)
 
-        conn.update(data=existing)
+        conn.update(spreadsheet=current_sheet, data=existing)
         st.success(f"Saved/updated classification for: {selected_title}")
 
 # --- Optional: view current table ---
