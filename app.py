@@ -3,6 +3,21 @@ import pandas as pd
 from datetime import datetime
 from streamlit_gsheets import GSheetsConnection
 
+def multi_select_custom(label, options, selected=None, cols_per_row=3):
+    """
+    Checkbox-based multi-select replacement that shows full text, stacked vertically.
+    Returns a list of selected options.
+    """
+    if selected is None:
+        selected = []
+    st.write(f"**{label}**")
+    selections = {}
+    cols = st.columns(cols_per_row)
+    for i, opt in enumerate(options):
+        with cols[i % cols_per_row]:
+            selections[opt] = st.checkbox(opt, value=opt in selected, key=f"{label}_{opt}")
+    return [k for k, v in selections.items() if v]
+
 
 def check_password():
     """Returns `True` if the user entered the correct password."""
@@ -153,7 +168,7 @@ if selected_title and not existing.empty:
 # --- Dropdowns with pre-selected values ---
 gwas_options = sorted(df["gwa_title"].unique())
 gwa_defaults = [x for x in str(saved.get("gwa", "") or "").split("; ") if x in gwas_options]
-selected_gwas = st.multiselect("Select GWA(s):", gwas_options, default=gwa_defaults)
+selected_gwas = multi_select_custom("Select GWA(s):", gwas_options, gwa_defaults)
 
 # --- IWA Dropdown ---
 iwa_defaults = [x for x in str(saved.get("iwa", "") or "").split("; ") if x]  # must come first
@@ -165,10 +180,11 @@ iwa_labels = [
 ]
 iwa_display_map = dict(zip(iwa_labels, iwa_options))
 
-selected_iwa_labels = st.multiselect(
+# --- Custom IWA Checkboxes ---
+selected_iwa_labels = multi_select_custom(
     "Select IWA(s):",
-    iwa_labels,
-    default=[k for k, v in iwa_display_map.items() if v in iwa_defaults],
+    [label for label in iwa_labels],
+    [k for k, v in iwa_display_map.items() if v in iwa_defaults]
 )
 selected_iwas = [iwa_display_map[label] for label in selected_iwa_labels]
 
@@ -183,14 +199,13 @@ dwa_labels = [
 ]
 dwa_display_map = dict(zip(dwa_labels, dwa_options))
 
-selected_dwa_labels = st.multiselect(
+# --- Custom DWA Checkboxes ---
+selected_dwa_labels = multi_select_custom(
     "Select DWA(s):",
-    dwa_labels,
-    default=[k for k, v in dwa_display_map.items() if v in dwa_defaults],
+    [label for label in dwa_labels],
+    [k for k, v in dwa_display_map.items() if v in dwa_defaults]
 )
 selected_dwas = [dwa_display_map[label] for label in selected_dwa_labels]
-
-
 
 # --- Task Dropdown ---
 task_defaults = [x for x in str(saved.get("task", "") or "").split("; ") if x]  # define first
@@ -204,10 +219,11 @@ task_labels = [
 ]
 task_display_map = dict(zip(task_labels, task_options))
 
-selected_task_labels = st.multiselect(
+# --- Custom Task Checkboxes ---
+selected_task_labels = multi_select_custom(
     "Select Task(s):",
-    task_labels,
-    default=[k for k, v in task_display_map.items() if v in task_defaults],
+    [label for label in task_labels],
+    [k for k, v in task_display_map.items() if v in task_defaults]
 )
 selected_tasks = [task_display_map[label] for label in selected_task_labels]
 
