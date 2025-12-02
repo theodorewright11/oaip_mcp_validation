@@ -138,18 +138,24 @@ selected_iwa_labels = st.multiselect(
 )
 selected_iwas = [iwa_display_map[label] for label in selected_iwa_labels]
 
+# --- DWA Dropdown ---
+dwa_defaults = [x for x in str(saved.get("dwa", "") or "").split("; ") if x]  # define first
+
 dwa_options = get_dwas(selected_iwas)
 dwa_labels = [
-    f"{dwa} (GWA: {iwa_lookup.get(dwa, {}).get('gwa_title', '—')}, IWA: {iwa_lookup.get(dwa, {}).get('iwa_title', '—')})"
+    f"{dwa} (GWA: {iwa_lookup.get(dwa, {}).get('gwa_title', '—')}, "
+    f"IWA: {iwa_lookup.get(dwa, {}).get('iwa_title', '—')})"
     for dwa in dwa_options
 ]
 dwa_display_map = dict(zip(dwa_labels, dwa_options))
+
 selected_dwa_labels = st.multiselect(
     "Select DWA(s):",
     dwa_labels,
     default=[k for k, v in dwa_display_map.items() if v in dwa_defaults],
 )
 selected_dwas = [dwa_display_map[label] for label in selected_dwa_labels]
+
 
 
 task_options = get_tasks(selected_dwas)
