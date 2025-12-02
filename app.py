@@ -3,7 +3,7 @@ import pandas as pd
 from datetime import datetime
 from streamlit_gsheets import GSheetsConnection
 
-# --- Basic password protection ---
+
 def check_password():
     """Returns `True` if the user entered the correct password."""
     if st.session_state.get("password_correct", False):
@@ -16,17 +16,15 @@ def check_password():
     if password and password.strip() == secret_pass:
         st.session_state["password_correct"] = True
         st.sidebar.success("✅ Access granted")
-        # force rerun to clear the input box
-        st.experimental_rerun()
+        st.rerun()  # 👈 updated here
     elif password:
         st.sidebar.error("❌ Incorrect password")
 
     return False
 
-
-# --- Lock the app if password not correct ---
 if not check_password():
     st.stop()
+
 
 st.set_page_config(page_title="MCP Labeling Tool", layout="wide")
 
