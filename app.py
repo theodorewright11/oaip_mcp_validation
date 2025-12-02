@@ -27,6 +27,33 @@ if not check_password():
 
 
 st.set_page_config(page_title="MCP Labeling Tool", layout="wide")
+# --- UI Tweaks ---
+st.markdown(
+    """
+    <style>
+    /* make multiselect tags wrap vertically and fully visible */
+    div[data-baseweb="tag"] {
+        white-space: normal !important;
+        height: auto !important;
+        line-height: 1.3em !important;
+    }
+
+    /* allow multiselect container to expand */
+    div[data-baseweb="select"] > div {
+        max-height: none !important;
+        overflow-y: visible !important;
+        flex-wrap: wrap !important;
+    }
+
+    /* make text wrap instead of cutting off */
+    span[data-baseweb="tag-text"] {
+        white-space: normal !important;
+    }
+    </style>
+    """,
+    unsafe_allow_html=True,
+)
+
 
 # --- Load static data ---
 df = pd.read_csv("options.csv")            # GWA–IWA–DWA–Task hierarchy
