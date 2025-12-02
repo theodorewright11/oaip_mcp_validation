@@ -1,34 +1,21 @@
-from streamlit_gsheets import GSheetsConnection
-import pandas as pd
-import streamlit as st
+import re
+import hashlib
 
-print("🔍 Testing Google Sheets connection...")
+def normalize_key(k):
+    # mimic Streamlit's internal normalization (roughly)
+    normalized = re.sub(r"[^a-zA-Z0-9_]+", "_", k.lower())
+    if len(normalized) > 50:
+        normalized = normalized[:40] + "_" + hashlib.md5(normalized.encode()).hexdigest()[:8]
+    return normalized
 
-# Initialize connection using the secrets.toml credentials
-conn = st.connection("gsheets", type=GSheetsConnection)
+example_keys = [
+    "Select IWA(s):_Analyze data (GWA: something)",
+    "Select DWA(s):_Analyze data (DWA: other thing)",
+    "Select IWA(s):_Train models (GWA: stuff)",
+    "Select DWA(s):_Train models (DWA: more stuff)"
+]
 
-# Try reading from the sheet
-try:
-    df = conn.read(spreadsheet="https://docs.google.com/spreadsheets/d/1FfvnrD2y8Cbdrwn5vai07F1HAsN9jvTXaFyLJ6Z20Ps/edit?usp=sharing", usecols=list(range(8)))
-    st.success("✅ Successfully read Google Sheet!")
-    st.dataframe(df)
-except Exception as e:
-    st.error(f"❌ Failed to read Google Sheet: {e}")
-
-# import streamlit as st
-# st.write(st.secrets)
-
-# import streamlit as st
-# from streamlit_gsheets import GSheetsConnection
-# import traceback
-
-# st.write("🔍 Testing Google Sheets connection...")
-
-# try:
-#     conn = st.connection("gsheets", type=GSheetsConnection)
-#     df = conn.read(spreadsheet="https://docs.google.com/spreadsheets/d/1FfvnrD2y8Cbdrwn5vai07F1HAsN9jvTXaFyLJ6Z20Ps/edit?usp=sharing")
-#     st.success("✅ Successfully read Google Sheet!")
-#     st.dataframe(df)
-# except Exception as e:
-#     st.error("❌ Failed to read Google Sheet")
-#     st.text(traceback.format_exc())
+print("🔍 Normalized key test:\n")
+for key in example_keys:
+    print(f"Original: {key}")
+    print(f"→ Normalized: {normalize_key(key)}\n")
