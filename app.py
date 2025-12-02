@@ -15,8 +15,11 @@ def multi_select_custom(label, options, selected=None, cols_per_row=3):
     selections = {}
     cols = st.columns(cols_per_row)
     for i, opt in enumerate(options):
+        safe_key = hashlib.md5(f"{label}::{opt}".encode()).hexdigest()
+
+        print("DEBUG_KEY:", label, "|", opt, "|", safe_key)
         with cols[i % cols_per_row]:
-            safe_key = hashlib.md5(f"{label}::{opt}".encode()).hexdigest()
+            # safe_key = hashlib.md5(f"{label}::{opt}".encode()).hexdigest()
             selections[opt] = st.checkbox(opt, value=opt in selected, key=safe_key)
     return [k for k, v in selections.items() if v]
 
