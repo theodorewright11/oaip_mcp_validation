@@ -4,12 +4,26 @@ from datetime import datetime
 from streamlit_gsheets import GSheetsConnection
 
 # --- Basic password protection ---
-st.sidebar.title("🔒 Access Control")
-password = st.sidebar.text_input("Enter password", type="password")
+def check_password():
+    """Returns `True` if the user entered the correct password."""
+    password = st.sidebar.text_input("Enter password", type="password")
 
-if password != st.secrets.get("app_password"):
-    st.warning("Enter the correct password to continue.")
-    st.stop()
+    if password == st.secrets.get("app_password"):
+        st.session_state["password_correct"] = True
+        st.sidebar.success("✅ Access granted")
+        return True
+    elif password:
+        st.sidebar.error("❌ Incorrect password")
+        return False
+    else:
+        return False
+
+if "password_correct" not in st.session_state:
+    st.session_state["password_correct"] = False
+
+if not st.session_state["password_correct"]:
+    if not check_password():
+        st.stop()
 
 st.set_page_config(page_title="MCP Labeling Tool", layout="wide")
 
