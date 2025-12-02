@@ -121,9 +121,16 @@ gwas_options = sorted(df["gwa_title"].unique())
 gwa_defaults = [x for x in str(saved.get("gwa", "") or "").split("; ") if x in gwas_options]
 selected_gwas = st.multiselect("Select GWA(s):", gwas_options, default=gwa_defaults)
 
+# --- IWA Dropdown ---
+iwa_defaults = [x for x in str(saved.get("iwa", "") or "").split("; ") if x]  # must come first
+
 iwa_options = get_iwas(selected_gwas)
-iwa_labels = [f"{iwa} (GWA: {gwa_lookup.get(iwa, '—')})" for iwa in iwa_options]
+iwa_labels = [
+    f"{iwa} (GWA: {gwa_lookup.get(iwa, '—')})"
+    for iwa in iwa_options
+]
 iwa_display_map = dict(zip(iwa_labels, iwa_options))
+
 selected_iwa_labels = st.multiselect(
     "Select IWA(s):",
     iwa_labels,
