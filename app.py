@@ -158,12 +158,18 @@ selected_dwas = [dwa_display_map[label] for label in selected_dwa_labels]
 
 
 
+# --- Task Dropdown ---
+task_defaults = [x for x in str(saved.get("task", "") or "").split("; ") if x]  # define first
+
 task_options = get_tasks(selected_dwas)
 task_labels = [
-    f"{task} (GWA: {dwa_lookup.get(task, {}).get('gwa_title', '—')}, IWA: {dwa_lookup.get(task, {}).get('iwa_title', '—')}, DWA: {dwa_lookup.get(task, {}).get('dwa_title', '—')})"
+    f"{task} (GWA: {dwa_lookup.get(task, {}).get('gwa_title', '—')}, "
+    f"IWA: {dwa_lookup.get(task, {}).get('iwa_title', '—')}, "
+    f"DWA: {dwa_lookup.get(task, {}).get('dwa_title', '—')})"
     for task in task_options
 ]
 task_display_map = dict(zip(task_labels, task_options))
+
 selected_task_labels = st.multiselect(
     "Select Task(s):",
     task_labels,
