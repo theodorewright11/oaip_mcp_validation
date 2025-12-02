@@ -64,7 +64,7 @@ except Exception as e:
     st.warning(f"Could not load sheet for {user_choice}: {e}")
     existing = pd.DataFrame()
 
-expected_cols = ["timestamp","title","url","bucket","gwa","iwa","dwa","task"]
+expected_cols = ["timestamp","title","url","bucket","gwa","iwa","dwa","task", "notes"]
 if existing is None or existing.empty or not set(expected_cols).issubset(existing.columns):
     existing = pd.DataFrame(columns=expected_cols)
 
@@ -105,6 +105,11 @@ task_options = get_tasks(selected_dwas)
 task_defaults = [x for x in str(saved.get("task", "") or "").split("; ") if x in task_options]
 selected_tasks = st.multiselect("Select Task(s):", task_options, default=task_defaults) if selected_dwas else []
 
+# --- Notes field ---
+notes_default = saved.get("notes", "") if saved else ""
+notes_text = st.text_area("📝 Notes (optional):", value=notes_default, height=120)
+
+
 # --- Save to Google Sheets ---
 if st.button("💾 Save / Update Classification"):
     if not selected_title:
@@ -119,7 +124,9 @@ if st.button("💾 Save / Update Classification"):
             "iwa": "; ".join(selected_iwas),
             "dwa": "; ".join(selected_dwas),
             "task": "; ".join(selected_tasks),
+            "notes": notes_text,
         }
+
 
         mask = existing["title"] == selected_title
         if mask.any():
