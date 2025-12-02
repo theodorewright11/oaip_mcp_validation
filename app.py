@@ -3,6 +3,14 @@ import pandas as pd
 from datetime import datetime
 from streamlit_gsheets import GSheetsConnection
 
+# --- Basic password protection ---
+st.sidebar.title("🔒 Access Control")
+password = st.sidebar.text_input("Enter password", type="password")
+
+if password != st.secrets.get("app_password"):
+    st.warning("Enter the correct password to continue.")
+    st.stop()
+
 st.set_page_config(page_title="MCP Labeling Tool", layout="wide")
 
 # --- Load static data ---
