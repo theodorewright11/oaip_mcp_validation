@@ -4,6 +4,23 @@ import pandas as pd
 from datetime import datetime
 from streamlit_gsheets import GSheetsConnection
 
+
+st.set_page_config(page_title="MCP Labeling Tool", layout="wide")
+# --- UI Tweaks ---
+st.markdown(
+    """
+    <style>
+    /* allow text selection inside widgets */
+    [data-testid="stMarkdownContainer"], [data-testid="stCheckbox"], label {
+        user-select: text !important;
+        cursor: text !important;
+    }
+    </style>
+    """,
+    unsafe_allow_html=True,
+)
+
+
 def multi_select_custom(label, options, selected=None, cols_per_row=3):
     """
     Checkbox-based multi-select replacement that shows full text, stacked vertically.
@@ -44,23 +61,6 @@ def check_password():
 
 if not check_password():
     st.stop()
-
-
-st.set_page_config(page_title="MCP Labeling Tool", layout="wide")
-# --- UI Tweaks ---
-st.markdown(
-    """
-    <style>
-    /* allow text selection inside widgets */
-    [data-testid="stMarkdownContainer"], [data-testid="stCheckbox"], label {
-        user-select: text !important;
-        cursor: text !important;
-    }
-    </style>
-    """,
-    unsafe_allow_html=True,
-)
-
 
 
 # --- Load static data ---
