@@ -46,29 +46,10 @@ st.set_page_config(page_title="MCP Labeling Tool", layout="wide")
 st.markdown(
     """
     <style>
-    /* Make multiselect tag text wrap properly */
-    div[data-baseweb="tag"] {
-        max-width: 100% !important;
-        white-space: normal !important;
-        overflow-wrap: break-word !important;
-        word-break: break-word !important;
-        line-height: 1.3em !important;
-        height: auto !important;
-        display: flex;
-        align-items: flex-start;
-    }
-
-    /* Allow the multiselect container to wrap multiple lines of tags */
-    div[data-baseweb="select"] > div {
-        flex-wrap: wrap !important;
-        max-height: none !important;
-        overflow-y: visible !important;
-    }
-
-    /* Prevent truncation of tag text inside the pill */
-    span[data-baseweb="tag-text"] {
-        display: block !important;
-        white-space: normal !important;
+    /* allow text selection inside widgets */
+    [data-testid="stMarkdownContainer"], [data-testid="stCheckbox"], label {
+        user-select: text !important;
+        cursor: text !important;
     }
     </style>
     """,
@@ -111,13 +92,16 @@ dwa_lookup = (
 
 # --- Helper functions ---
 def get_iwas(selected_gwas):
-    return sorted(df[df["gwa_title"].isin(selected_gwas)]["iwa_title"].dropna().unique().tolist())
+    sub = df[df["gwa_title"].isin(selected_gwas)][["gwa_title", "iwa_title"]].dropna()
+    return [x for _, x in sub.sort_values(["gwa_title", "iwa_title"]).itertuples(index=False)]
 
 def get_dwas(selected_iwas):
-    return sorted(df[df["iwa_title"].isin(selected_iwas)]["dwa_title"].dropna().unique().tolist())
+    sub = df[df["iwa_title"].isin(selected_iwas)][["iwa_title", "dwa_title"]].dropna()
+    return [x for _, x in sub.sort_values(["iwa_title", "dwa_title"]).itertuples(index=False)]
 
 def get_tasks(selected_dwas):
-    return sorted(df[df["dwa_title"].isin(selected_dwas)]["task"].dropna().unique().tolist())
+    sub = df[df["dwa_title"].isin(selected_dwas)][["dwa_title", "task"]].dropna()
+    return [x for _, x in sub.sort_values(["dwa_title", "task"]).itertuples(index=False)]
 
 # --- Connect to Google Sheets ---
 conn = st.connection("gsheets", type=GSheetsConnection)
@@ -230,7 +214,13 @@ selected_tasks = [task_display_map[label] for label in selected_task_labels]
 
 # --- Notes field ---
 notes_default = saved.get("notes", "") if saved else ""
-notes_text = st.text_area("Notes:", value=notes_default, height=120)
+notes_text = st.text_area(
+    "Notes:",
+    value=notes_default,
+    height=120,
+    key=f"notes_{selected_title}"  # ensures unique state per MCP
+)
+
 
 
 # --- Save to Google Sheets ---
