@@ -30,7 +30,13 @@ st.set_page_config(page_title="MCP Labeling Tool", layout="wide")
 
 # --- Load static data ---
 df = pd.read_csv("options.csv")            # GWA–IWA–DWA–Task hierarchy
-examples = pd.read_csv("examples.csv")     # MCP examples (title, url, text_for_llm, bucket)
+examples = pd.read_csv("examples.csv")  
+
+# Build quick lookup dictionaries
+gwa_lookup = df.set_index("iwa_title")["gwa_title"].to_dict()
+iwa_lookup = df.set_index("dwa_title")[["gwa_title", "iwa_title"]].to_dict(orient="index")
+dwa_lookup = df.set_index("task")[["gwa_title", "iwa_title", "dwa_title"]].to_dict(orient="index")
+   # MCP examples (title, url, text_for_llm, bucket)
 
 # --- Helper functions ---
 def get_iwas(selected_gwas):
@@ -94,16 +100,42 @@ gwa_defaults = [x for x in str(saved.get("gwa", "") or "").split("; ") if x in g
 selected_gwas = st.multiselect("Select GWA(s):", gwas_options, default=gwa_defaults)
 
 iwa_options = get_iwas(selected_gwas)
-iwa_defaults = [x for x in str(saved.get("iwa", "") or "").split("; ") if x in iwa_options]
-selected_iwas = st.multiselect("Select IWA(s):", iwa_options, default=iwa_defaults) if selected_gwas else []
+iwa_labels = [f"{iwa} (GWA: {gwa_lookup.get(iwa, '—')})" for iwa in iwa_options]
+iwa_display_map = dict(zip(iwa_labels, iwa_options))
+selected_iwa_labels = st.multiselect(
+    "Select IWA(s):",
+    iwa_labels,
+    default=[k for k, v in iwa_display_map.items() if v in iwa_defaults],
+)
+selected_iwas = [iwa_display_map[label] for label in selected_iwa_labels]
 
 dwa_options = get_dwas(selected_iwas)
-dwa_defaults = [x for x in str(saved.get("dwa", "") or "").split("; ") if x in dwa_options]
-selected_dwas = st.multiselect("Select DWA(s):", dwa_options, default=dwa_defaults) if selected_iwas else []
+dwa_labels = [
+    f"{dwa} (GWA: {iwa_lookup.get(dwa, {}).get('gwa_title', '—')}, IWA: {iwa_lookup.get(dwa, {}).get('iwa_title', '—')})"
+    for dwa in dwa_options
+]
+dwa_display_map = dict(zip(dwa_labels, dwa_options))
+selected_dwa_labels = st.multiselect(
+    "Select DWA(s):",
+    dwa_labels,
+    default=[k for k, v in dwa_display_map.items() if v in dwa_defaults],
+)
+selected_dwas = [dwa_display_map[label] for label in selected_dwa_labels]
+
 
 task_options = get_tasks(selected_dwas)
-task_defaults = [x for x in str(saved.get("task", "") or "").split("; ") if x in task_options]
-selected_tasks = st.multiselect("Select Task(s):", task_options, default=task_defaults) if selected_dwas else []
+task_labels = [
+    f"{task} (GWA: {dwa_lookup.get(task, {}).get('gwa_title', '—')}, IWA: {dwa_lookup.get(task, {}).get('iwa_title', '—')}, DWA: {dwa_lookup.get(task, {}).get('dwa_title', '—')})"
+    for task in task_options
+]
+task_display_map = dict(zip(task_labels, task_options))
+selected_task_labels = st.multiselect(
+    "Select Task(s):",
+    task_labels,
+    default=[k for k, v in task_display_map.items() if v in task_defaults],
+)
+selected_tasks = [task_display_map[label] for label in selected_task_labels]
+
 
 # --- Notes field ---
 notes_default = saved.get("notes", "") if saved else ""
