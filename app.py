@@ -7,8 +7,10 @@ from streamlit_gsheets import GSheetsConnection
 def check_password():
     """Returns `True` if the user entered the correct password."""
     password = st.sidebar.text_input("Enter password", type="password")
+    secret_pass = str(st.secrets.get("app_password", "")).strip().strip('"')
+    st.sidebar.write(f"(Debug) Entered: {password}, Secret: {secret_pass}")
 
-    if password == st.secrets.get("app_password"):
+    if password.strip() == secret_pass:
         st.session_state["password_correct"] = True
         st.sidebar.success("✅ Access granted")
         return True
