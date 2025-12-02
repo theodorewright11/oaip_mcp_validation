@@ -1,3 +1,4 @@
+import hashlib
 import streamlit as st
 import pandas as pd
 from datetime import datetime
@@ -15,7 +16,8 @@ def multi_select_custom(label, options, selected=None, cols_per_row=3):
     cols = st.columns(cols_per_row)
     for i, opt in enumerate(options):
         with cols[i % cols_per_row]:
-            selections[opt] = st.checkbox(opt, value=opt in selected, key=f"{label}_{opt}")
+            safe_key = f"{label}_{hashlib.md5(opt.encode()).hexdigest()}"
+            selections[opt] = st.checkbox(opt, value=opt in selected, key=safe_key)
     return [k for k, v in selections.items() if v]
 
 
