@@ -267,8 +267,9 @@ if st.button("💾 Save / Update Classification"):
             "notes": notes_text,
         }
 
-
-        mask = existing["title"] == selected_title
+        # Clean comparison - strip whitespace and handle NaN
+        existing["title"] = existing["title"].astype(str).str.strip()
+        mask = existing["title"] == selected_title.strip()
         if mask.any():
             for k, v in new_row.items():
                 existing.loc[mask, k] = v
