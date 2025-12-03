@@ -136,7 +136,7 @@ current_sheet = sheet_urls[user_choice]
 
 # --- Load that sheet ---
 try:
-    existing = conn.read(spreadsheet=current_sheet, usecols=list(range(8)))
+    existing = conn.read(spreadsheet=current_sheet)
 except Exception as e:
     st.warning(f"Could not load sheet for {user_choice}: {e}")
     existing = pd.DataFrame()
