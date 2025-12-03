@@ -188,7 +188,9 @@ selected_gwas = multi_select_custom("Select GWA(s):", gwas_options, gwa_defaults
 # --- IWA Dropdown ---
 iwa_defaults = [x for x in str(saved.get("iwa", "") or "").split("; ") if x]  # must come first
 
-iwa_options = get_iwas(selected_gwas)
+# Use selected_gwas if present, otherwise use gwa_defaults for initial load
+gwas_for_filter = selected_gwas if selected_gwas else gwa_defaults
+iwa_options = get_iwas(gwas_for_filter)
 iwa_labels = [
     f"{iwa} (GWA: {gwa_lookup.get(iwa, '—')})"
     for iwa in iwa_options
@@ -206,7 +208,9 @@ selected_iwas = [iwa_display_map[label] for label in selected_iwa_labels]
 # --- DWA Dropdown ---
 dwa_defaults = [x for x in str(saved.get("dwa", "") or "").split("; ") if x]  # define first
 
-dwa_options = get_dwas(selected_iwas)
+# Use selected_iwas if present, otherwise use iwa_defaults for initial load
+iwas_for_filter = selected_iwas if selected_iwas else iwa_defaults
+dwa_options = get_dwas(iwas_for_filter)
 dwa_labels = [
     f"{dwa} (GWA: {iwa_lookup.get(dwa, {}).get('gwa_title', '—')}, "
     f"IWA: {iwa_lookup.get(dwa, {}).get('iwa_title', '—')})"
@@ -225,7 +229,9 @@ selected_dwas = [dwa_display_map[label] for label in selected_dwa_labels]
 # --- Task Dropdown ---
 task_defaults = [x for x in str(saved.get("task", "") or "").split("; ") if x]  # define first
 
-task_options = get_tasks(selected_dwas)
+# Use selected_dwas if present, otherwise use dwa_defaults for initial load
+dwas_for_filter = selected_dwas if selected_dwas else dwa_defaults
+task_options = get_tasks(dwas_for_filter)
 task_labels = [
     f"{task} (GWA: {dwa_lookup.get(task, {}).get('gwa_title', '—')}, "
     f"IWA: {dwa_lookup.get(task, {}).get('iwa_title', '—')}, "
