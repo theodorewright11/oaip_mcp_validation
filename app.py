@@ -21,7 +21,7 @@ st.markdown(
 )
 
 
-def multi_select_custom(label, options, selected=None, cols_per_row=3):
+def multi_select_custom(label, options, selected=None, cols_per_row=3, key_suffix=""):
     """
     Checkbox-based multi-select replacement that shows full text, stacked vertically.
     Returns a list of selected options.
@@ -35,7 +35,7 @@ def multi_select_custom(label, options, selected=None, cols_per_row=3):
         with cols[i % cols_per_row]:
             # Use hash of option text for stable key that changes with content
             opt_hash = hashlib.md5(opt.encode()).hexdigest()[:8]
-            selections[opt] = st.checkbox(opt, value=opt in selected, key=f"{label}_{opt_hash}")
+            selections[opt] = st.checkbox(opt, value=opt in selected, key=f"{label}_{opt_hash}_{key_suffix}")
     return [k for k, v in selections.items() if v]
 
 
@@ -186,7 +186,7 @@ st.write("GWA from saved:", saved.get("gwa", ""))
 gwas_options = sorted(df["gwa_title"].unique())
 gwa_defaults = [x for x in str(saved.get("gwa", "") or "").split("; ") if x in gwas_options]
 st.write("GWA defaults:", gwa_defaults)
-selected_gwas = multi_select_custom("Select GWA(s):", gwas_options, gwa_defaults)
+selected_gwas = multi_select_custom("Select GWA(s):", gwas_options, gwa_defaults, key_suffix=selected_title)
 
 # --- IWA Dropdown ---
 iwa_defaults = [x for x in str(saved.get("iwa", "") or "").split("; ") if x]  # must come first
@@ -204,7 +204,8 @@ iwa_display_map = dict(zip(iwa_labels, iwa_options))
 selected_iwa_labels = multi_select_custom(
     "Select IWA(s):",
     [label for label in iwa_labels],
-    [k for k, v in iwa_display_map.items() if v in iwa_defaults]
+    [k for k, v in iwa_display_map.items() if v in iwa_defaults],
+    key_suffix=selected_title
 )
 selected_iwas = [iwa_display_map[label] for label in selected_iwa_labels]
 
@@ -225,7 +226,8 @@ dwa_display_map = dict(zip(dwa_labels, dwa_options))
 selected_dwa_labels = multi_select_custom(
     "Select DWA(s):",
     [label for label in dwa_labels],
-    [k for k, v in dwa_display_map.items() if v in dwa_defaults]
+    [k for k, v in dwa_display_map.items() if v in dwa_defaults],
+    key_suffix=selected_title
 )
 selected_dwas = [dwa_display_map[label] for label in selected_dwa_labels]
 
@@ -247,7 +249,8 @@ task_display_map = dict(zip(task_labels, task_options))
 selected_task_labels = multi_select_custom(
     "Select Task(s):",
     [label for label in task_labels],
-    [k for k, v in task_display_map.items() if v in task_defaults]
+    [k for k, v in task_display_map.items() if v in task_defaults],
+    key_suffix=selected_title
 )
 selected_tasks = [task_display_map[label] for label in selected_task_labels]
 
