@@ -33,7 +33,9 @@ def multi_select_custom(label, options, selected=None, cols_per_row=3):
     cols = st.columns(cols_per_row)
     for i, opt in enumerate(options):
         with cols[i % cols_per_row]:
-            selections[opt] = st.checkbox(opt, value=opt in selected, key=f"{label}_{i}")
+            # Use hash of option text for stable key that changes with content
+            opt_hash = hashlib.md5(opt.encode()).hexdigest()[:8]
+            selections[opt] = st.checkbox(opt, value=opt in selected, key=f"{label}_{opt_hash}")
     return [k for k, v in selections.items() if v]
 
 
@@ -166,7 +168,9 @@ if selected_title:
 # --- Load existing selection for this title ---
 saved = {}
 if selected_title and not existing.empty:
-    match = existing[existing["title"] == selected_title]
+    # Clean string comparison to avoid mismatch issues
+    existing_titles_clean = existing["title"].astype(str).str.strip()
+    match = existing[existing_titles_clean == selected_title.strip()]
     if not match.empty:
         saved = match.iloc[0].to_dict()
 
