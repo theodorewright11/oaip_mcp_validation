@@ -32,12 +32,8 @@ def multi_select_custom(label, options, selected=None, cols_per_row=3):
     selections = {}
     cols = st.columns(cols_per_row)
     for i, opt in enumerate(options):
-        safe_key = hashlib.md5(f"{label}::{opt}".encode()).hexdigest()
-
-        print("DEBUG_KEY:", label, "|", opt, "|", safe_key)
         with cols[i % cols_per_row]:
-            # safe_key = hashlib.md5(f"{label}::{opt}".encode()).hexdigest()
-            selections[opt] = st.checkbox(opt, value=opt in selected, key=safe_key)
+            selections[opt] = st.checkbox(opt, value=opt in selected, key=f"{label}_{i}")
     return [k for k, v in selections.items() if v]
 
 
@@ -98,15 +94,30 @@ dwa_lookup = (
 # --- Helper functions ---
 def get_iwas(selected_gwas):
     sub = df[df["gwa_title"].isin(selected_gwas)][["gwa_title", "iwa_title"]].dropna()
-    return [x for _, x in sub.sort_values(["gwa_title", "iwa_title"]).itertuples(index=False)]
+    return (
+        sub.sort_values(["gwa_title", "iwa_title"])
+           .drop_duplicates(subset=["iwa_title"])
+           ["iwa_title"]
+           .tolist()
+    )
 
 def get_dwas(selected_iwas):
     sub = df[df["iwa_title"].isin(selected_iwas)][["iwa_title", "dwa_title"]].dropna()
-    return [x for _, x in sub.sort_values(["iwa_title", "dwa_title"]).itertuples(index=False)]
+    return (
+        sub.sort_values(["iwa_title", "dwa_title"])
+           .drop_duplicates(subset=["dwa_title"])
+           ["dwa_title"]
+           .tolist()
+    )
 
 def get_tasks(selected_dwas):
     sub = df[df["dwa_title"].isin(selected_dwas)][["dwa_title", "task"]].dropna()
-    return [x for _, x in sub.sort_values(["dwa_title", "task"]).itertuples(index=False)]
+    return (
+        sub.sort_values(["dwa_title", "task"])
+           .drop_duplicates(subset=["task"])
+           ["task"]
+           .tolist()
+    )
 
 # --- Connect to Google Sheets ---
 conn = st.connection("gsheets", type=GSheetsConnection)
