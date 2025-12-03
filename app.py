@@ -190,6 +190,8 @@ selected_gwas = multi_select_custom("Select GWA(s):", gwas_options, gwa_defaults
 
 # --- IWA Dropdown ---
 iwa_defaults = [x for x in str(saved.get("iwa", "") or "").split("; ") if x]  # must come first
+st.write("DEBUG iwa_defaults:", iwa_defaults)
+st.write("DEBUG raw iwa from saved:", saved.get("iwa", "NOT FOUND"))
 
 # Use selected_gwas if present, otherwise use gwa_defaults for initial load
 gwas_for_filter = selected_gwas if selected_gwas else gwa_defaults
