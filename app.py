@@ -145,6 +145,11 @@ expected_cols = ["timestamp","title","url","bucket","gwa","iwa","dwa","task", "n
 if existing is None or existing.empty or not set(expected_cols).issubset(existing.columns):
     existing = pd.DataFrame(columns=expected_cols)
 
+st.write("=== DEBUG: RAW EXISTING DF ===")
+st.write(existing)
+st.write("Columns:", existing.columns.tolist())
+st.write("Shape:", existing.shape)
+
 
 # --- App UI ---
 st.title("🧩 MCP Classification Tool")
@@ -164,6 +169,12 @@ if selected_title and not existing.empty:
     match = existing[existing["title"] == selected_title]
     if not match.empty:
         saved = match.iloc[0].to_dict()
+
+st.write("=== DEBUG BEFORE SAVE ===")
+st.write("Selected title:", selected_title)
+st.write("Mask result:", existing["title"] == selected_title)
+st.write("Any match?:", (existing["title"] == selected_title).any())
+
 
 # --- Dropdowns with pre-selected values ---
 gwas_options = sorted(df["gwa_title"].unique())
@@ -266,6 +277,10 @@ if st.button("💾 Save / Update Classification"):
 
         conn.update(spreadsheet=current_sheet, data=existing)
         st.success(f"Saved/updated classification for: {selected_title}")
+
+st.write("=== DEBUG AFTER SAVE ===")
+st.write(existing.tail(10))
+
 
 # --- Optional: view current table ---
 if st.checkbox("Show saved classifications"):
