@@ -165,6 +165,10 @@ st.title("🧩 MCP Classification Tool")
 titles = examples["title"].tolist()
 selected_title = st.selectbox("Select an MCP Server Example:", [""] + titles)
 
+# TEST BUTTON
+test_clicked = st.button("TEST BUTTON")
+st.write("TEST: button clicked =", test_clicked)
+
 if selected_title:
     row = examples[examples["title"] == selected_title].iloc[0]
     st.markdown(f"**URL:** [{row['url']}]({row['url']})")
