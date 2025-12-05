@@ -309,19 +309,18 @@ if button_clicked:
         # Find which GWAs are actually used by those IWAs
         used_gwas = df[df["iwa_title"].isin(used_iwas)]["gwa_title"].dropna().unique().tolist()
 
-        st.write("DEBUG: selected_tasks:", selected_tasks)
+        st.write("DEBUG: selected_tasks:", selected_tasks[:1])
         st.write("DEBUG: used_dwas:", used_dwas)
         st.write("DEBUG: used_iwas:", used_iwas)
         st.write("DEBUG: used_gwas:", used_gwas)
-        st.write("DEBUG: Currently selected GWAs:", selected_gwas)
-        st.write("DEBUG: Currently selected IWAs:", selected_iwas)
-        st.write("DEBUG: Currently selected DWAs:", selected_dwas)
 
         # Store cleaned selections in session state
         st.session_state[f"cleaned_gwas_{selected_title}"] = used_gwas
         st.session_state[f"cleaned_iwas_{selected_title}"] = used_iwas
         st.session_state[f"cleaned_dwas_{selected_title}"] = used_dwas
-        st.rerun()
+        # TEMPORARILY COMMENTED OUT TO SEE IF CODE RUNS
+        # st.rerun()
+        st.success("Cleanup button executed! (rerun disabled for testing)")
     else:
         st.warning("Please select some tasks first before cleaning up.")
 
