@@ -243,19 +243,27 @@ task_defaults_raw = [x for x in str(saved.get("task", "") or "").split("; ") if 
 
 # Always use the current DWA selections for filtering
 task_options = get_tasks(selected_dwas)
-st.write("DEBUG selected_dwas:", selected_dwas)
-st.write("DEBUG task_options count:", len(task_options))
-st.write("DEBUG task_options:", task_options)
 
 # Only keep defaults that are still in the filtered options
 task_defaults = [x for x in task_defaults_raw if x in task_options]
 
-task_labels = [
-    f"{task} (GWA: {dwa_lookup.get(task, {}).get('gwa_title', '—')}, "
-    f"IWA: {dwa_lookup.get(task, {}).get('iwa_title', '—')}, "
-    f"DWA: {dwa_lookup.get(task, {}).get('dwa_title', '—')})"
-    for task in task_options
-]
+# Build labels showing which selected DWAs each task belongs to
+task_labels = []
+for task in task_options:
+    # Find which of the selected DWAs this task belongs to
+    task_dwas = df[df["task"] == task]["dwa_title"].dropna().unique()
+    matching_dwas = [dwa for dwa in selected_dwas if dwa in task_dwas]
+
+    if matching_dwas:
+        # Show the first matching DWA (or could show all)
+        task_row = df[(df["task"] == task) & (df["dwa_title"] == matching_dwas[0])].iloc[0]
+        label = f"{task} (GWA: {task_row.get('gwa_title', '—')}, IWA: {task_row.get('iwa_title', '—')}, DWA: {task_row.get('dwa_title', '—')})"
+    else:
+        # Fallback to original lookup
+        label = f"{task} (GWA: {dwa_lookup.get(task, {}).get('gwa_title', '—')}, IWA: {dwa_lookup.get(task, {}).get('iwa_title', '—')}, DWA: {dwa_lookup.get(task, {}).get('dwa_title', '—')})"
+
+    task_labels.append(label)
+
 task_display_map = dict(zip(task_labels, task_options))
 
 # --- Custom Task Checkboxes ---
