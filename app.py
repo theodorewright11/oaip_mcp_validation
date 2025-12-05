@@ -30,12 +30,18 @@ def multi_select_custom(label, options, selected=None, cols_per_row=3, key_suffi
         selected = []
     st.write(f"**{label}**")
     selections = {}
-    cols = st.columns(cols_per_row)
-    for i, opt in enumerate(options):
-        with cols[i % cols_per_row]:
-            # Use hash of option text for stable key that changes with content
-            opt_hash = hashlib.md5(opt.encode()).hexdigest()[:8]
-            selections[opt] = st.checkbox(opt, value=opt in selected, key=f"{label}_{opt_hash}_{key_suffix}")
+
+    # Group options into rows of cols_per_row
+    for row_start in range(0, len(options), cols_per_row):
+        cols = st.columns(cols_per_row)
+        row_options = options[row_start:row_start + cols_per_row]
+
+        for col_idx, opt in enumerate(row_options):
+            with cols[col_idx]:
+                # Use hash of option text for stable key that changes with content
+                opt_hash = hashlib.md5(opt.encode()).hexdigest()[:8]
+                selections[opt] = st.checkbox(opt, value=opt in selected, key=f"{label}_{opt_hash}_{key_suffix}")
+
     return [k for k, v in selections.items() if v]
 
 
