@@ -191,12 +191,19 @@ if selected_title and not existing.empty:
 # --- Dropdowns with pre-selected values ---
 gwas_options = sorted(df["gwa_title"].unique())
 gwa_defaults = [x for x in str(saved.get("gwa", "") or "").split("; ") if x in gwas_options]
-# Debug
-# st.write("GWA defaults:", gwa_defaults)
+
+# Check if there are cleaned selections in session state
+if f"cleaned_gwas_{selected_title}" in st.session_state:
+    gwa_defaults = st.session_state[f"cleaned_gwas_{selected_title}"]
+
 selected_gwas = multi_select_custom("Select GWA(s):", gwas_options, gwa_defaults, key_suffix=selected_title)
 
 # --- IWA Dropdown ---
 iwa_defaults_raw = [x for x in str(saved.get("iwa", "") or "").split("; ") if x]
+
+# Check if there are cleaned selections in session state
+if f"cleaned_iwas_{selected_title}" in st.session_state:
+    iwa_defaults_raw = st.session_state[f"cleaned_iwas_{selected_title}"]
 
 # Always use the current GWA selections for filtering
 iwa_options = get_iwas(selected_gwas)
@@ -221,6 +228,10 @@ selected_iwas = [iwa_display_map[label] for label in selected_iwa_labels]
 
 # --- DWA Dropdown ---
 dwa_defaults_raw = [x for x in str(saved.get("dwa", "") or "").split("; ") if x]
+
+# Check if there are cleaned selections in session state
+if f"cleaned_dwas_{selected_title}" in st.session_state:
+    dwa_defaults_raw = st.session_state[f"cleaned_dwas_{selected_title}"]
 
 # Always use the current IWA selections for filtering
 dwa_options = get_dwas(selected_iwas)
@@ -281,6 +292,23 @@ selected_task_labels = multi_select_custom(
 )
 selected_tasks = [task_display_map[label] for label in selected_task_labels]
 
+# --- Clean Up Selections Button ---
+if st.button("🧹 Clean Up Unused Selections"):
+    if selected_tasks:
+        # Find which DWAs are actually used by selected tasks
+        used_dwas = df[df["task"].isin(selected_tasks)]["dwa_title"].dropna().unique().tolist()
+        # Find which IWAs are actually used by those DWAs
+        used_iwas = df[df["dwa_title"].isin(used_dwas)]["iwa_title"].dropna().unique().tolist()
+        # Find which GWAs are actually used by those IWAs
+        used_gwas = df[df["iwa_title"].isin(used_iwas)]["gwa_title"].dropna().unique().tolist()
+
+        # Store cleaned selections in session state
+        st.session_state[f"cleaned_gwas_{selected_title}"] = used_gwas
+        st.session_state[f"cleaned_iwas_{selected_title}"] = used_iwas
+        st.session_state[f"cleaned_dwas_{selected_title}"] = used_dwas
+        st.rerun()
+    else:
+        st.warning("Please select some tasks first before cleaning up.")
 
 # --- Notes field ---
 notes_default = saved.get("notes", "") if saved else ""
