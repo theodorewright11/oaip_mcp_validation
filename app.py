@@ -302,6 +302,14 @@ if st.button("🧹 Clean Up Unused Selections"):
         # Find which GWAs are actually used by those IWAs
         used_gwas = df[df["iwa_title"].isin(used_iwas)]["gwa_title"].dropna().unique().tolist()
 
+        st.write("DEBUG: selected_tasks:", selected_tasks)
+        st.write("DEBUG: used_dwas:", used_dwas)
+        st.write("DEBUG: used_iwas:", used_iwas)
+        st.write("DEBUG: used_gwas:", used_gwas)
+        st.write("DEBUG: Currently selected GWAs:", selected_gwas)
+        st.write("DEBUG: Currently selected IWAs:", selected_iwas)
+        st.write("DEBUG: Currently selected DWAs:", selected_dwas)
+
         # Store cleaned selections in session state
         st.session_state[f"cleaned_gwas_{selected_title}"] = used_gwas
         st.session_state[f"cleaned_iwas_{selected_title}"] = used_iwas
