@@ -293,7 +293,10 @@ selected_task_labels = multi_select_custom(
 selected_tasks = [task_display_map[label] for label in selected_task_labels]
 
 # --- Clean Up Selections Button ---
+st.write("DEBUG: About to show cleanup button")
+st.write("DEBUG: selected_tasks before button:", selected_tasks)
 if st.button("🧹 Clean Up Unused Selections"):
+    st.write("DEBUG: Button was clicked!")
     if selected_tasks:
         # Find which DWAs are actually used by selected tasks
         used_dwas = df[df["task"].isin(selected_tasks)]["dwa_title"].dropna().unique().tolist()
