@@ -191,9 +191,8 @@ selected_gwas = multi_select_custom("Select GWA(s):", gwas_options, gwa_defaults
 # --- IWA Dropdown ---
 iwa_defaults_raw = [x for x in str(saved.get("iwa", "") or "").split("; ") if x]
 
-# Use selected_gwas if present, otherwise use gwa_defaults for initial load
-gwas_for_filter = selected_gwas if selected_gwas else gwa_defaults
-iwa_options = get_iwas(gwas_for_filter)
+# Always use the current GWA selections for filtering
+iwa_options = get_iwas(selected_gwas)
 
 # Only keep defaults that are still in the filtered options
 iwa_defaults = [x for x in iwa_defaults_raw if x in iwa_options]
@@ -216,9 +215,8 @@ selected_iwas = [iwa_display_map[label] for label in selected_iwa_labels]
 # --- DWA Dropdown ---
 dwa_defaults_raw = [x for x in str(saved.get("dwa", "") or "").split("; ") if x]
 
-# Use selected_iwas if present, otherwise use iwa_defaults for initial load
-iwas_for_filter = selected_iwas if selected_iwas else iwa_defaults
-dwa_options = get_dwas(iwas_for_filter)
+# Always use the current IWA selections for filtering
+dwa_options = get_dwas(selected_iwas)
 
 # Only keep defaults that are still in the filtered options
 dwa_defaults = [x for x in dwa_defaults_raw if x in dwa_options]
@@ -242,9 +240,8 @@ selected_dwas = [dwa_display_map[label] for label in selected_dwa_labels]
 # --- Task Dropdown ---
 task_defaults_raw = [x for x in str(saved.get("task", "") or "").split("; ") if x]
 
-# Use selected_dwas if present, otherwise use dwa_defaults for initial load
-dwas_for_filter = selected_dwas if selected_dwas else dwa_defaults
-task_options = get_tasks(dwas_for_filter)
+# Always use the current DWA selections for filtering
+task_options = get_tasks(selected_dwas)
 
 # Only keep defaults that are still in the filtered options
 task_defaults = [x for x in task_defaults_raw if x in task_options]
