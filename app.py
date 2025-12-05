@@ -293,7 +293,7 @@ selected_task_labels = multi_select_custom(
 selected_tasks = [task_display_map[label] for label in selected_task_labels]
 
 # --- Clean Up Selections Button ---
-button_clicked = st.button("🧹 Clean Up Unused Selections", key=f"cleanup_btn_{selected_title}")
+button_clicked = st.button("🧹 Clean Up Unused Selections")
 st.write("DEBUG: button_clicked =", button_clicked)
 if button_clicked:
     st.write("DEBUG: Inside button block!")
