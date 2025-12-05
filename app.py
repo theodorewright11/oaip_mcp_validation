@@ -243,6 +243,9 @@ task_defaults_raw = [x for x in str(saved.get("task", "") or "").split("; ") if 
 
 # Always use the current DWA selections for filtering
 task_options = get_tasks(selected_dwas)
+st.write("DEBUG selected_dwas:", selected_dwas)
+st.write("DEBUG task_options count:", len(task_options))
+st.write("DEBUG task_options:", task_options)
 
 # Only keep defaults that are still in the filtered options
 task_defaults = [x for x in task_defaults_raw if x in task_options]
