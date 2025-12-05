@@ -185,7 +185,8 @@ if selected_title and not existing.empty:
 # --- Dropdowns with pre-selected values ---
 gwas_options = sorted(df["gwa_title"].unique())
 gwa_defaults = [x for x in str(saved.get("gwa", "") or "").split("; ") if x in gwas_options]
-st.write("GWA defaults:", gwa_defaults)
+# Debug
+# st.write("GWA defaults:", gwa_defaults)
 selected_gwas = multi_select_custom("Select GWA(s):", gwas_options, gwa_defaults, key_suffix=selected_title)
 
 # --- IWA Dropdown ---
