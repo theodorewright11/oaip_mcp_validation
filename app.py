@@ -185,7 +185,7 @@ if selected_title:
 st.write("---")
 st.markdown("### Classification")
 st.markdown("*Select the work activities and tasks that this MCP server automates.*")
-st.write("")
+st.write("---")
 
 # --- Load existing selection for this title ---
 saved = {}
@@ -224,7 +224,6 @@ key_suffix_gwa = f"{selected_title}_v{cleanup_count}"
 # --- Custom GWA Checkboxes ---
 selected_gwas = multi_select_custom("Select GWA(s):", gwas_options, gwa_defaults, key_suffix=key_suffix_gwa)
 
-st.write("")  # Spacing
 st.write("---")
 
 # --- IWA Dropdown ---
@@ -293,8 +292,7 @@ selected_dwa_labels = multi_select_custom(
 )
 selected_dwas = [dwa_display_map[label] for label in selected_dwa_labels]
 
-st.write("")  # Spacing
-st.write("")  # Spacing
+st.write("---")
 
 # --- Auto-select required parent IWAs and GWAs based on selected DWAs ---
 if selected_dwas:
@@ -402,7 +400,7 @@ if selected_tasks:
         # Get saved rating or default to 5
         default_rating = saved_task_ratings.get(task, 5)
         rating = st.slider(
-            f"{task[:80]}...",  # Truncate long task names
+            f"{task[:200]}...",  # Truncate long task names
             min_value=1,
             max_value=10,
             value=default_rating,
