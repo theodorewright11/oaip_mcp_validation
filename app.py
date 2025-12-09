@@ -470,7 +470,7 @@ st.write("---")
 st.write("### Slider 1: User Deployability")
 st.write("**Rate how much the person who currently does this task could directly use this MCP server to automate the given task, or how much it would require another actor (engineer, service, integrator) to make it usable?**")
 
-with st.expander("📊 Scoring Guidelines"):
+with st.expander("📐 Scoring Guidelines"):
     st.markdown("""
     | Score Range | Category | Description | Example |
     |-------------|----------|-------------|---------|
@@ -521,7 +521,7 @@ st.write("---")
 st.write("### Slider 2: Workflow Augmentation Potential")
 st.write("**Across the selected work activities (GWA, IWA, or DWA), how much could this MCP contribute to task automation by automating and/or augmenting parts of the workflow — even if it doesn't automate entire tasks on its own?**")
 
-with st.expander("📊 Scoring Guidelines"):
+with st.expander("📐 Scoring Guidelines"):
     st.markdown("""
     | Score Range | Category | Description | Example |
     |-------------|----------|-------------|---------|
