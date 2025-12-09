@@ -70,7 +70,7 @@ st.markdown(
 
     [data-testid="stCheckbox"] label div {
         font-size: 0.95rem !important;
-        line-height: 1.25 !important;
+        line-height: 1.35 !important;
         padding: 0 !important;
         margin: 0 !important;
     }
