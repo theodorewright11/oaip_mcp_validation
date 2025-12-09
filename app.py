@@ -97,7 +97,7 @@ dwa_lookup = (
     .to_dict(orient="index")
 )
 
-   # MCP examples (title, url, text_for_llm, bucket)
+   # MCP examples (title, url, text_for_llm)
 
 # --- Helper functions ---
 def get_iwas(selected_gwas):
@@ -149,7 +149,7 @@ except Exception as e:
     st.warning(f"Could not load sheet for {user_choice}: {e}")
     existing = pd.DataFrame()
 
-expected_cols = ["timestamp","title","url","bucket","gwa","iwa","dwa","task","task_ratings","notes"]
+expected_cols = ["timestamp","title","url","gwa","iwa","dwa","task","task_ratings","notes"]
 if existing is None or existing.empty or not set(expected_cols).issubset(existing.columns):
     existing = pd.DataFrame(columns=expected_cols)
 
@@ -160,30 +160,31 @@ if existing is None or existing.empty or not set(expected_cols).issubset(existin
 
 
 # --- App UI ---
-st.title("🧩 MCP Classification Tool")
+st.title("MCP Classification Tool")
 
 st.markdown("### Overview")
 st.markdown("""
 This tool helps classify MCP (Model Context Protocol) servers by mapping them to relevant work activities and tasks.
 Select an MCP server below, then classify it by choosing the General Work Activities (GWA), Intermediate Work Activities (IWA),
-Detailed Work Activities (DWA), and specific Tasks it could support or automate.
+Detailed Work Activities (DWA), and specific Tasks it could automate.
 """)
 
 st.write("---")
 
 titles = examples["title"].tolist()
+st.markdown("### MCP Selection")
 selected_title = st.selectbox("Select an MCP Server Example:", [""] + titles)
 
 
 if selected_title:
     row = examples[examples["title"] == selected_title].iloc[0]
     st.markdown(f"**URL:** [{row['url']}]({row['url']})")
-    st.write(row["text_for_llm"])
-    st.write(f"**Bucket:** {row['bucket']}")
+    st.write(row[f"**About:** {row['text_for_llm']}"])
+    # st.write(f"**Bucket:** {row['bucket']}")
 
     st.write("---")
-    st.markdown("### Classification Section")
-    st.markdown("*Select the work activities and tasks that this MCP server supports. Start with GWA, then drill down through IWA → DWA → Tasks.*")
+    st.markdown("### Classification")
+    st.markdown("*Select the work activities and tasks that this MCP server automates.*")
     st.write("")
 
 # --- Load existing selection for this title ---
@@ -220,10 +221,11 @@ if f"auto_gwas_{selected_title}" in st.session_state:
 cleanup_count = st.session_state.get(f"cleanup_count_{selected_title}", 0)
 key_suffix_gwa = f"{selected_title}_v{cleanup_count}"
 
-st.markdown("#### General Work Activities (GWA)")
+# --- Custom GWA Checkboxes ---
 selected_gwas = multi_select_custom("Select GWA(s):", gwas_options, gwa_defaults, key_suffix=key_suffix_gwa)
 
 st.write("")  # Spacing
+st.write("---")
 
 # --- IWA Dropdown ---
 iwa_defaults_raw = [x for x in str(saved.get("iwa", "") or "").split("; ") if x]
@@ -250,7 +252,6 @@ iwa_labels = [
 iwa_display_map = dict(zip(iwa_labels, iwa_options))
 
 # --- Custom IWA Checkboxes ---
-st.markdown("#### Intermediate Work Activities (IWA)")
 key_suffix_iwa = f"{selected_title}_v{cleanup_count}"
 selected_iwa_labels = multi_select_custom(
     "Select IWA(s):",
@@ -260,7 +261,7 @@ selected_iwa_labels = multi_select_custom(
 )
 selected_iwas = [iwa_display_map[label] for label in selected_iwa_labels]
 
-st.write("")  # Spacing
+st.write("---")
 
 # --- DWA Dropdown ---
 dwa_defaults_raw = [x for x in str(saved.get("dwa", "") or "").split("; ") if x]
@@ -283,7 +284,6 @@ dwa_labels = [
 dwa_display_map = dict(zip(dwa_labels, dwa_options))
 
 # --- Custom DWA Checkboxes ---
-st.markdown("#### Detailed Work Activities (DWA)")
 key_suffix_dwa = f"{selected_title}_v{cleanup_count}"
 selected_dwa_labels = multi_select_custom(
     "Select DWA(s):",
@@ -293,6 +293,7 @@ selected_dwa_labels = multi_select_custom(
 )
 selected_dwas = [dwa_display_map[label] for label in selected_dwa_labels]
 
+st.write("")  # Spacing
 st.write("")  # Spacing
 
 # --- Auto-select required parent IWAs and GWAs based on selected DWAs ---
@@ -335,7 +336,6 @@ for task in task_options:
 task_display_map = dict(zip(task_labels, task_options))
 
 # --- Custom Task Checkboxes ---
-st.markdown("#### Specific Tasks")
 # Tasks should NOT get the cleaned suffix - they drive the cleanup!
 selected_task_labels = multi_select_custom(
     "Select Task(s):",
@@ -348,7 +348,7 @@ selected_tasks = [task_display_map[label] for label in selected_task_labels]
 st.write("")  # Spacing
 
 # --- Clean Up Selections Button ---
-if st.button("🧹 Clean Up Unused Selections"):
+if st.button("Clean Up Unused Selections"):
     if selected_tasks:
         # Find which DWAs are actually used by selected tasks
         used_dwas = df[df["task"].isin(selected_tasks)]["dwa_title"].dropna().unique().tolist()
@@ -414,6 +414,8 @@ else:
 
 st.write("---")
 
+st.write("### Saving")
+
 # --- Notes field ---
 notes_default = saved.get("notes", "") if saved else ""
 notes_text = st.text_area(
@@ -426,7 +428,7 @@ notes_text = st.text_area(
 
 
 # --- Save to Google Sheets ---
-if st.button("💾 Save / Update Classification"):
+if st.button("Save / Update Classification"):
     if not selected_title:
         st.error("Please select an example first.")
     else:
@@ -437,7 +439,6 @@ if st.button("💾 Save / Update Classification"):
             "timestamp": datetime.now().isoformat(timespec="seconds"),
             "title": selected_title,
             "url": row["url"],
-            "bucket": row["bucket"],
             "gwa": "; ".join(selected_gwas),
             "iwa": "; ".join(selected_iwas),
             "dwa": "; ".join(selected_dwas),
