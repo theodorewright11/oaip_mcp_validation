@@ -198,6 +198,11 @@ if f"cleaned_gwas_{selected_title}" in st.session_state:
     gwa_defaults = st.session_state[f"cleaned_gwas_{selected_title}"]
     st.write(f"🧹 USING CLEANED GWA DEFAULTS: {gwa_defaults}")
 
+# Auto-add required GWAs from selected DWAs
+if f"auto_gwas_{selected_title}" in st.session_state:
+    auto_gwas = st.session_state[f"auto_gwas_{selected_title}"]
+    gwa_defaults = list(set(gwa_defaults + auto_gwas))  # Merge and deduplicate
+
 # Add cleanup counter to key suffix if cleanup was performed to force checkbox recreation
 cleanup_count = st.session_state.get(f"cleanup_count_{selected_title}", 0)
 key_suffix_gwa = f"{selected_title}_v{cleanup_count}"
@@ -209,6 +214,11 @@ iwa_defaults_raw = [x for x in str(saved.get("iwa", "") or "").split("; ") if x]
 # Check if there are cleaned selections in session state
 if f"cleaned_iwas_{selected_title}" in st.session_state:
     iwa_defaults_raw = st.session_state[f"cleaned_iwas_{selected_title}"]
+
+# Auto-add required IWAs from selected DWAs
+if f"auto_iwas_{selected_title}" in st.session_state:
+    auto_iwas = st.session_state[f"auto_iwas_{selected_title}"]
+    iwa_defaults_raw = list(set(iwa_defaults_raw + auto_iwas))  # Merge and deduplicate
 
 # Always use the current GWA selections for filtering
 iwa_options = get_iwas(selected_gwas)
@@ -261,6 +271,17 @@ selected_dwa_labels = multi_select_custom(
     key_suffix=key_suffix_dwa
 )
 selected_dwas = [dwa_display_map[label] for label in selected_dwa_labels]
+
+# --- Auto-select required parent IWAs and GWAs based on selected DWAs ---
+if selected_dwas:
+    # Find all IWAs needed for the selected DWAs
+    required_iwas = df[df["dwa_title"].isin(selected_dwas)]["iwa_title"].dropna().unique().tolist()
+    # Find all GWAs needed for those IWAs
+    required_gwas = df[df["iwa_title"].isin(required_iwas)]["gwa_title"].dropna().unique().tolist()
+
+    # Auto-add to defaults (will take effect on next rerun when user clicks a DWA)
+    st.session_state[f"auto_iwas_{selected_title}"] = required_iwas
+    st.session_state[f"auto_gwas_{selected_title}"] = required_gwas
 
 # --- Task Dropdown ---
 task_defaults_raw = [x for x in str(saved.get("task", "") or "").split("; ") if x]
