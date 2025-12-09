@@ -166,7 +166,7 @@ st.markdown("### Overview")
 st.markdown("""
 This tool helps classify MCP (Model Context Protocol) servers by mapping them to relevant work activities and tasks.
 Select an MCP server below, then classify it by choosing the General Work Activities (GWA), Intermediate Work Activities (IWA),
-Detailed Work Activities (DWA), and specific Tasks it could automate.
+Detailed Work Activities (DWA), and specific Tasks it could automate. Then for each selected task, rate how much the MCP could automate it.
 """)
 
 st.write("---")
