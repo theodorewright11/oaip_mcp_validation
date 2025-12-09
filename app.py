@@ -165,9 +165,6 @@ st.title("🧩 MCP Classification Tool")
 titles = examples["title"].tolist()
 selected_title = st.selectbox("Select an MCP Server Example:", [""] + titles)
 
-# TEST BUTTON
-test_clicked = st.button("TEST BUTTON")
-st.write("TEST: button clicked =", test_clicked)
 
 if selected_title:
     row = examples[examples["title"] == selected_title].iloc[0]
@@ -201,8 +198,9 @@ if f"cleaned_gwas_{selected_title}" in st.session_state:
     gwa_defaults = st.session_state[f"cleaned_gwas_{selected_title}"]
     st.write(f"🧹 USING CLEANED GWA DEFAULTS: {gwa_defaults}")
 
-# Add "_cleaned" to key suffix if cleanup was performed to force checkbox recreation
-key_suffix_gwa = selected_title + ("_cleaned" if f"cleaned_flag_{selected_title}" in st.session_state else "")
+# Add cleanup counter to key suffix if cleanup was performed to force checkbox recreation
+cleanup_count = st.session_state.get(f"cleanup_count_{selected_title}", 0)
+key_suffix_gwa = f"{selected_title}_v{cleanup_count}"
 selected_gwas = multi_select_custom("Select GWA(s):", gwas_options, gwa_defaults, key_suffix=key_suffix_gwa)
 
 # --- IWA Dropdown ---
@@ -225,7 +223,7 @@ iwa_labels = [
 iwa_display_map = dict(zip(iwa_labels, iwa_options))
 
 # --- Custom IWA Checkboxes ---
-key_suffix_iwa = selected_title + ("_cleaned" if f"cleaned_flag_{selected_title}" in st.session_state else "")
+key_suffix_iwa = f"{selected_title}_v{cleanup_count}"
 selected_iwa_labels = multi_select_custom(
     "Select IWA(s):",
     [label for label in iwa_labels],
@@ -255,7 +253,7 @@ dwa_labels = [
 dwa_display_map = dict(zip(dwa_labels, dwa_options))
 
 # --- Custom DWA Checkboxes ---
-key_suffix_dwa = selected_title + ("_cleaned" if f"cleaned_flag_{selected_title}" in st.session_state else "")
+key_suffix_dwa = f"{selected_title}_v{cleanup_count}"
 selected_dwa_labels = multi_select_custom(
     "Select DWA(s):",
     [label for label in dwa_labels],
@@ -293,12 +291,12 @@ for task in task_options:
 task_display_map = dict(zip(task_labels, task_options))
 
 # --- Custom Task Checkboxes ---
-key_suffix_task = selected_title + ("_cleaned" if f"cleaned_flag_{selected_title}" in st.session_state else "")
+# Tasks should NOT get the cleaned suffix - they drive the cleanup!
 selected_task_labels = multi_select_custom(
     "Select Task(s):",
     [label for label in task_labels],
     [k for k, v in task_display_map.items() if v in task_defaults],
-    key_suffix=key_suffix_task
+    key_suffix=selected_title
 )
 selected_tasks = [task_display_map[label] for label in selected_task_labels]
 
@@ -329,7 +327,9 @@ if st.button("🧹 Clean Up Unused Selections"):
         st.session_state[f"cleaned_iwas_{selected_title}"] = used_iwas
         st.session_state[f"cleaned_dwas_{selected_title}"] = used_dwas
 
-        # Set a flag to change the key suffix, forcing checkboxes to recreate
+        # Increment cleanup counter to change the key suffix, forcing checkboxes to recreate
+        cleanup_count = st.session_state.get(f"cleanup_count_{selected_title}", 0) + 1
+        st.session_state[f"cleanup_count_{selected_title}"] = cleanup_count
         st.session_state[f"cleaned_flag_{selected_title}"] = True
 
         st.success("✅ Cleaning up selections...")
