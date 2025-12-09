@@ -198,7 +198,7 @@ def get_tasks(selected_dwas):
 conn = st.connection("gsheets", type=GSheetsConnection)
 
 # --- Team member selection ---
-st.sidebar.header("Select Team Member")
+st.sidebar.header("👥 Select Team Member")
 user_choice = st.sidebar.selectbox("Who are you?", ["Teddy", "Alice", "Eric"])
 
 sheet_urls = {
@@ -243,7 +243,7 @@ st.write("---")
 
 titles = examples["title"].tolist()
 st.markdown("### MCP Selection")
-selected_title = st.selectbox("Select an MCP Server Example:", [""] + titles)
+selected_title = st.selectbox("⚙️ Select an MCP Server Example:", [""] + titles)
 
 
 if selected_title:
@@ -289,7 +289,7 @@ else:
     default_index = 0  # Default to "Yes"
 
 occ_relevant = st.radio(
-    "Select one:",
+    "💼 Select one:",
     options=["Yes", "No"],
     index=default_index,
     key=f"occ_relevant_{selected_title}",
@@ -440,7 +440,7 @@ selected_tasks = [task_display_map[label] for label in selected_task_labels]
 st.write("")  # Spacing
 
 # --- Clean Up Selections Button ---
-if st.button("Clean Up Unused Selections"):
+if st.button("🧹 Clean Up Unused Selections"):
     if selected_tasks:
         # Find which DWAs are actually used by selected tasks
         used_dwas = df[df["task"].isin(selected_tasks)]["dwa_title"].dropna().unique().tolist()
@@ -558,7 +558,7 @@ st.write("### Saving")
 # --- Notes field ---
 notes_default = saved.get("notes", "") if saved else ""
 notes_text = st.text_area(
-    "Notes:",
+    "📝 Notes:",
     value=notes_default,
     height=120,
     key=f"notes_{selected_title}"  # ensures unique state per MCP
@@ -567,7 +567,7 @@ notes_text = st.text_area(
 
 
 # --- Save to Google Sheets ---
-if st.button("Save / Update Classification"):
+if st.button("💾 Save / Update Classification"):
     if not selected_title:
         st.error("Please select an example first.")
     else:
