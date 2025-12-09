@@ -211,7 +211,7 @@ if selected_title and not existing.empty:
 
 # --- Occupational Relevance Selection ---
 st.write("---")
-st.markdown("##### Occupationally Relevant?")
+st.markdown("**Occupationally Relevant?**")
 st.markdown("*Does this MCP perform an activity that a human could reasonably be paid to do within the economy?*")
 
 # Load saved value
