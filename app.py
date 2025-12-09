@@ -53,7 +53,7 @@ st.markdown(
 
     /* Tighten checkbox spacing */
     [data-testid="stCheckbox"] {
-        margin: 0 !important;
+        margin: 3px !important;
         padding: 0 !important;
     }
 
