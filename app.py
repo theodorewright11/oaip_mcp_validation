@@ -74,7 +74,12 @@ st.markdown(
         padding: 0 !important;
         margin: 0 !important;
     }
-
+    
+    /* Nudge checkbox text downward without affecting layout or wrapping */
+    [data-testid="stCheckbox"] label div {
+    position: relative !important;
+    top: 2px !important;   /* move text downward */
+    }   
 
     </style>
     """,
