@@ -333,8 +333,8 @@ if st.button("🧹 Clean Up Unused Selections"):
         for key in keys_to_delete:
             del st.session_state[key]
 
-        st.success("✅ Cleaned selections stored in session state! (NOT rerunning so you can see the debug output)")
-        # st.rerun()  # Commented out so you can see debug output
+        st.success("✅ Cleaning up selections...")
+        st.rerun()
     else:
         st.warning("Please select some tasks first before cleaning up.")
 
