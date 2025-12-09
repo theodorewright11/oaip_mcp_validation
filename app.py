@@ -179,7 +179,7 @@ selected_title = st.selectbox("Select an MCP Server Example:", [""] + titles)
 if selected_title:
     row = examples[examples["title"] == selected_title].iloc[0]
     st.markdown(f"**URL:** [{row['url']}]({row['url']})")
-    st.write(row[f"**About:** {row['text_for_llm']}"])
+    st.markdown(row[f"**About:** {row['text_for_llm']}"])
     # st.write(f"**Bucket:** {row['bucket']}")
 
     st.write("---")
