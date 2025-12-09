@@ -199,6 +199,7 @@ gwa_defaults = [x for x in str(saved.get("gwa", "") or "").split("; ") if x in g
 # Check if there are cleaned selections in session state
 if f"cleaned_gwas_{selected_title}" in st.session_state:
     gwa_defaults = st.session_state[f"cleaned_gwas_{selected_title}"]
+    st.write(f"🧹 USING CLEANED GWA DEFAULTS: {gwa_defaults}")
 
 selected_gwas = multi_select_custom("Select GWA(s):", gwas_options, gwa_defaults, key_suffix=selected_title)
 
