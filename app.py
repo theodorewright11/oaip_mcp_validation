@@ -201,7 +201,9 @@ if f"cleaned_gwas_{selected_title}" in st.session_state:
     gwa_defaults = st.session_state[f"cleaned_gwas_{selected_title}"]
     st.write(f"🧹 USING CLEANED GWA DEFAULTS: {gwa_defaults}")
 
-selected_gwas = multi_select_custom("Select GWA(s):", gwas_options, gwa_defaults, key_suffix=selected_title)
+# Add "_cleaned" to key suffix if cleanup was performed to force checkbox recreation
+key_suffix_gwa = selected_title + ("_cleaned" if f"cleaned_flag_{selected_title}" in st.session_state else "")
+selected_gwas = multi_select_custom("Select GWA(s):", gwas_options, gwa_defaults, key_suffix=key_suffix_gwa)
 
 # --- IWA Dropdown ---
 iwa_defaults_raw = [x for x in str(saved.get("iwa", "") or "").split("; ") if x]
@@ -223,11 +225,12 @@ iwa_labels = [
 iwa_display_map = dict(zip(iwa_labels, iwa_options))
 
 # --- Custom IWA Checkboxes ---
+key_suffix_iwa = selected_title + ("_cleaned" if f"cleaned_flag_{selected_title}" in st.session_state else "")
 selected_iwa_labels = multi_select_custom(
     "Select IWA(s):",
     [label for label in iwa_labels],
     [k for k, v in iwa_display_map.items() if v in iwa_defaults],
-    key_suffix=selected_title
+    key_suffix=key_suffix_iwa
 )
 selected_iwas = [iwa_display_map[label] for label in selected_iwa_labels]
 
@@ -252,11 +255,12 @@ dwa_labels = [
 dwa_display_map = dict(zip(dwa_labels, dwa_options))
 
 # --- Custom DWA Checkboxes ---
+key_suffix_dwa = selected_title + ("_cleaned" if f"cleaned_flag_{selected_title}" in st.session_state else "")
 selected_dwa_labels = multi_select_custom(
     "Select DWA(s):",
     [label for label in dwa_labels],
     [k for k, v in dwa_display_map.items() if v in dwa_defaults],
-    key_suffix=selected_title
+    key_suffix=key_suffix_dwa
 )
 selected_dwas = [dwa_display_map[label] for label in selected_dwa_labels]
 
@@ -289,11 +293,12 @@ for task in task_options:
 task_display_map = dict(zip(task_labels, task_options))
 
 # --- Custom Task Checkboxes ---
+key_suffix_task = selected_title + ("_cleaned" if f"cleaned_flag_{selected_title}" in st.session_state else "")
 selected_task_labels = multi_select_custom(
     "Select Task(s):",
     [label for label in task_labels],
     [k for k, v in task_display_map.items() if v in task_defaults],
-    key_suffix=selected_title
+    key_suffix=key_suffix_task
 )
 selected_tasks = [task_display_map[label] for label in selected_task_labels]
 
@@ -324,15 +329,8 @@ if st.button("🧹 Clean Up Unused Selections"):
         st.session_state[f"cleaned_iwas_{selected_title}"] = used_iwas
         st.session_state[f"cleaned_dwas_{selected_title}"] = used_dwas
 
-        # Clear checkbox session state so they use the new cleaned defaults
-        keys_to_delete = []
-        for key in list(st.session_state.keys()):
-            if selected_title in key and any(x in key for x in ["Select GWA", "Select IWA", "Select DWA"]):
-                keys_to_delete.append(key)
-
-        st.write("DEBUG: Checkbox keys to delete:", len(keys_to_delete))
-        for key in keys_to_delete:
-            del st.session_state[key]
+        # Set a flag to change the key suffix, forcing checkboxes to recreate
+        st.session_state[f"cleaned_flag_{selected_title}"] = True
 
         st.success("✅ Cleaning up selections...")
         st.rerun()
