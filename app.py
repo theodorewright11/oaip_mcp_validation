@@ -164,13 +164,13 @@ st.title("MCP Classification Tool")
 st.write("---")
 st.markdown("### Overview")
 st.markdown("""
-This tool helps classify MCP (Model Context Protocol) servers — plugin-like systems that let AI assistants access external tools, APIs, or data sources to perform real-world tasks.
-
-**Your task:**
-1. **Determine if the MCP performs an occupationally relevant activity** — something a human could reasonably be paid to do within the economy
-2. If yes, **classify the work activities and tasks** it supports by selecting from General Work Activities (GWA), Intermediate Work Activities (IWA), Detailed Work Activities (DWA), and specific Tasks
-3. **Rate the automation potential** of each task on a scale of 1-10
+This tool helps classify MCP (Model Context Protocol) servers by mapping them to relevant work activities and tasks. 
+Select an MCP server below and determine if it is occupationally relevant. 
+If it is, then classify it by choosing the General Work Activities (GWA), Intermediate Work Activities (IWA), 
+Detailed Work Activities (DWA), and specific Tasks it could automate. 
+Then for each selected task, rate how much the MCP server could automate it on a scale of 1–10.
 """)
+
 
 st.write("---")
 
@@ -186,11 +186,10 @@ if selected_title:
     # st.write(f"**Bucket:** {row['bucket']}")
 
 st.write("---")
-st.markdown("### Classification Section")
+st.markdown("### Classification")
 st.markdown("""
-**Step 1:** Determine if this MCP performs an **occupationally relevant activity** (something a person could be paid to do).
-
-**Step 2:** If yes, classify by selecting work activities starting from GWA, then drilling down through IWA → DWA → Tasks.
+First determine if this MCP server is occupationally relevant. If it is, 
+select the work activities and tasks that this MCP server automates.
 """)
 
 # --- Load existing selection for this title ---
