@@ -298,6 +298,12 @@ selected_tasks = [task_display_map[label] for label in selected_task_labels]
 
 # --- Clean Up Selections Button ---
 if st.button("🧹 Clean Up Unused Selections"):
+    st.write("=== CLEANUP BUTTON CLICKED ===")
+    st.write("DEBUG: Currently selected GWAs:", selected_gwas)
+    st.write("DEBUG: Currently selected IWAs:", selected_iwas)
+    st.write("DEBUG: Currently selected DWAs:", selected_dwas)
+    st.write("DEBUG: Currently selected Tasks:", selected_tasks)
+
     if selected_tasks:
         # Find which DWAs are actually used by selected tasks
         used_dwas = df[df["task"].isin(selected_tasks)]["dwa_title"].dropna().unique().tolist()
@@ -307,9 +313,10 @@ if st.button("🧹 Clean Up Unused Selections"):
         used_gwas = df[df["iwa_title"].isin(used_iwas)]["gwa_title"].dropna().unique().tolist()
 
         st.write("DEBUG: selected_tasks:", selected_tasks[:1])
-        st.write("DEBUG: used_dwas:", used_dwas)
-        st.write("DEBUG: used_iwas:", used_iwas)
-        st.write("DEBUG: used_gwas:", used_gwas)
+        st.write("---")
+        st.write("DEBUG: USED (needed) GWAs:", used_gwas)
+        st.write("DEBUG: USED (needed) IWAs:", used_iwas)
+        st.write("DEBUG: USED (needed) DWAs:", used_dwas)
 
         # Store cleaned selections in session state
         st.session_state[f"cleaned_gwas_{selected_title}"] = used_gwas
@@ -317,16 +324,17 @@ if st.button("🧹 Clean Up Unused Selections"):
         st.session_state[f"cleaned_dwas_{selected_title}"] = used_dwas
 
         # Clear checkbox session state so they use the new cleaned defaults
-        # Find all keys that are checkboxes for GWA/IWA/DWA for this MCP
         keys_to_delete = []
         for key in list(st.session_state.keys()):
             if selected_title in key and any(x in key for x in ["Select GWA", "Select IWA", "Select DWA"]):
                 keys_to_delete.append(key)
 
+        st.write("DEBUG: Checkbox keys to delete:", len(keys_to_delete))
         for key in keys_to_delete:
             del st.session_state[key]
 
-        st.rerun()
+        st.success("✅ Cleaned selections stored in session state! (NOT rerunning so you can see the debug output)")
+        # st.rerun()  # Commented out so you can see debug output
     else:
         st.warning("Please select some tasks first before cleaning up.")
 
