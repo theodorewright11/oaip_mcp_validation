@@ -7,24 +7,39 @@ from streamlit_gsheets import GSheetsConnection
 
 st.set_page_config(page_title="MCP Labeling Tool", layout="wide")
 # --- UI Tweaks ---
+# st.markdown(
+#     """
+#     <style>
+#     /* allow text selection */
+#     [data-testid="stMarkdownContainer"], [data-testid="stCheckbox"], label {
+#         user-select: text !important;
+#         cursor: text !important;
+#     }
+
+#     /* REAL checkbox label override */
+#     [data-testid="stCheckbox"] label div {
+#         font-size: 0.85rem !important;
+#         line-height: 1.1 !important;
+#     }
+#     </style>
+#     """,
+#     unsafe_allow_html=True,
+# )
+
+
 st.markdown(
     """
     <style>
-    /* allow text selection */
+    /* allow text selection inside widgets */
     [data-testid="stMarkdownContainer"], [data-testid="stCheckbox"], label {
         user-select: text !important;
         cursor: text !important;
-    }
-
-    /* REAL checkbox label override */
-    [data-testid="stCheckbox"] label div {
-        font-size: 0.85rem !important;
-        line-height: 1.1 !important;
     }
     </style>
     """,
     unsafe_allow_html=True,
 )
+
 
 
 
