@@ -162,6 +162,15 @@ if existing is None or existing.empty or not set(expected_cols).issubset(existin
 # --- App UI ---
 st.title("🧩 MCP Classification Tool")
 
+st.markdown("### Overview")
+st.markdown("""
+This tool helps classify MCP (Model Context Protocol) servers by mapping them to relevant work activities and tasks.
+Select an MCP server below, then classify it by choosing the General Work Activities (GWA), Intermediate Work Activities (IWA),
+Detailed Work Activities (DWA), and specific Tasks it could support or automate.
+""")
+
+st.write("---")
+
 titles = examples["title"].tolist()
 selected_title = st.selectbox("Select an MCP Server Example:", [""] + titles)
 
@@ -171,6 +180,11 @@ if selected_title:
     st.markdown(f"**URL:** [{row['url']}]({row['url']})")
     st.write(row["text_for_llm"])
     st.write(f"**Bucket:** {row['bucket']}")
+
+    st.write("---")
+    st.markdown("### Classification Section")
+    st.markdown("*Select the work activities and tasks that this MCP server supports. Start with GWA, then drill down through IWA → DWA → Tasks.*")
+    st.write("")
 
 # --- Load existing selection for this title ---
 saved = {}
@@ -205,7 +219,11 @@ if f"auto_gwas_{selected_title}" in st.session_state:
 # Add cleanup counter to key suffix if cleanup was performed to force checkbox recreation
 cleanup_count = st.session_state.get(f"cleanup_count_{selected_title}", 0)
 key_suffix_gwa = f"{selected_title}_v{cleanup_count}"
+
+st.markdown("#### General Work Activities (GWA)")
 selected_gwas = multi_select_custom("Select GWA(s):", gwas_options, gwa_defaults, key_suffix=key_suffix_gwa)
+
+st.write("")  # Spacing
 
 # --- IWA Dropdown ---
 iwa_defaults_raw = [x for x in str(saved.get("iwa", "") or "").split("; ") if x]
@@ -232,6 +250,7 @@ iwa_labels = [
 iwa_display_map = dict(zip(iwa_labels, iwa_options))
 
 # --- Custom IWA Checkboxes ---
+st.markdown("#### Intermediate Work Activities (IWA)")
 key_suffix_iwa = f"{selected_title}_v{cleanup_count}"
 selected_iwa_labels = multi_select_custom(
     "Select IWA(s):",
@@ -240,6 +259,8 @@ selected_iwa_labels = multi_select_custom(
     key_suffix=key_suffix_iwa
 )
 selected_iwas = [iwa_display_map[label] for label in selected_iwa_labels]
+
+st.write("")  # Spacing
 
 # --- DWA Dropdown ---
 dwa_defaults_raw = [x for x in str(saved.get("dwa", "") or "").split("; ") if x]
@@ -262,6 +283,7 @@ dwa_labels = [
 dwa_display_map = dict(zip(dwa_labels, dwa_options))
 
 # --- Custom DWA Checkboxes ---
+st.markdown("#### Detailed Work Activities (DWA)")
 key_suffix_dwa = f"{selected_title}_v{cleanup_count}"
 selected_dwa_labels = multi_select_custom(
     "Select DWA(s):",
@@ -270,6 +292,8 @@ selected_dwa_labels = multi_select_custom(
     key_suffix=key_suffix_dwa
 )
 selected_dwas = [dwa_display_map[label] for label in selected_dwa_labels]
+
+st.write("")  # Spacing
 
 # --- Auto-select required parent IWAs and GWAs based on selected DWAs ---
 if selected_dwas:
@@ -311,6 +335,7 @@ for task in task_options:
 task_display_map = dict(zip(task_labels, task_options))
 
 # --- Custom Task Checkboxes ---
+st.markdown("#### Specific Tasks")
 # Tasks should NOT get the cleaned suffix - they drive the cleanup!
 selected_task_labels = multi_select_custom(
     "Select Task(s):",
@@ -320,25 +345,55 @@ selected_task_labels = multi_select_custom(
 )
 selected_tasks = [task_display_map[label] for label in selected_task_labels]
 
-# --- Task Automation Ratings ---
+st.write("")  # Spacing
+
+# --- Clean Up Selections Button ---
+if st.button("🧹 Clean Up Unused Selections"):
+    if selected_tasks:
+        # Find which DWAs are actually used by selected tasks
+        used_dwas = df[df["task"].isin(selected_tasks)]["dwa_title"].dropna().unique().tolist()
+        # Find which IWAs are actually used by those DWAs
+        used_iwas = df[df["dwa_title"].isin(used_dwas)]["iwa_title"].dropna().unique().tolist()
+        # Find which GWAs are actually used by those IWAs
+        used_gwas = df[df["iwa_title"].isin(used_iwas)]["gwa_title"].dropna().unique().tolist()
+
+        # Store cleaned selections in session state
+        st.session_state[f"cleaned_gwas_{selected_title}"] = used_gwas
+        st.session_state[f"cleaned_iwas_{selected_title}"] = used_iwas
+        st.session_state[f"cleaned_dwas_{selected_title}"] = used_dwas
+
+        # Increment cleanup counter to change the key suffix, forcing checkboxes to recreate
+        cleanup_count_new = st.session_state.get(f"cleanup_count_{selected_title}", 0) + 1
+        st.session_state[f"cleanup_count_{selected_title}"] = cleanup_count_new
+        st.session_state[f"cleaned_flag_{selected_title}"] = True
+
+        st.success("✅ Cleaning up selections...")
+        st.rerun()
+    else:
+        st.warning("Please select some tasks first before cleaning up.")
+
 st.write("---")
-st.write("**Rate Automation Potential (1-10):**")
+
+# --- Task Automation Ratings ---
+st.write("### Rate Automation Potential (1-10)")
 st.write("*For each selected task, rate how much this MCP could automate it (1=minimal, 10=complete automation)*")
 
 # Load saved ratings
 saved_task_ratings = {}
-if saved and "task_ratings" in saved and saved.get("task_ratings"):
-    # Parse saved ratings: "7; 9; 4" -> match with tasks by index
-    saved_tasks = [x.strip() for x in str(saved.get("task", "")).split(";") if x.strip()]
-    saved_ratings = [x.strip() for x in str(saved.get("task_ratings", "")).split(";") if x.strip()]
+if saved:
+    task_ratings_raw = saved.get("task_ratings", "")
+    if task_ratings_raw and str(task_ratings_raw) != "nan":
+        # Parse saved ratings: "7; 9; 4" -> match with tasks by index
+        saved_tasks = [x.strip() for x in str(saved.get("task", "")).split(";") if x.strip()]
+        saved_ratings = [x.strip() for x in str(task_ratings_raw).split(";") if x.strip()]
 
-    # Create a mapping of task -> rating
-    for i, task in enumerate(saved_tasks):
-        if i < len(saved_ratings):
-            try:
-                saved_task_ratings[task] = int(saved_ratings[i])
-            except:
-                saved_task_ratings[task] = 5  # Default if parsing fails
+        # Create a mapping of task -> rating
+        for i, task in enumerate(saved_tasks):
+            if i < len(saved_ratings):
+                try:
+                    saved_task_ratings[task] = int(saved_ratings[i])
+                except:
+                    saved_task_ratings[task] = 5  # Default if parsing fails
 
 # Create sliders for each selected task
 task_ratings = {}
@@ -357,42 +412,7 @@ if selected_tasks:
 else:
     st.info("Select tasks above to rate their automation potential.")
 
-# --- Clean Up Selections Button ---
-if st.button("🧹 Clean Up Unused Selections"):
-    st.write("=== CLEANUP BUTTON CLICKED ===")
-    st.write("DEBUG: Currently selected GWAs:", selected_gwas)
-    st.write("DEBUG: Currently selected IWAs:", selected_iwas)
-    st.write("DEBUG: Currently selected DWAs:", selected_dwas)
-    st.write("DEBUG: Currently selected Tasks:", selected_tasks)
-
-    if selected_tasks:
-        # Find which DWAs are actually used by selected tasks
-        used_dwas = df[df["task"].isin(selected_tasks)]["dwa_title"].dropna().unique().tolist()
-        # Find which IWAs are actually used by those DWAs
-        used_iwas = df[df["dwa_title"].isin(used_dwas)]["iwa_title"].dropna().unique().tolist()
-        # Find which GWAs are actually used by those IWAs
-        used_gwas = df[df["iwa_title"].isin(used_iwas)]["gwa_title"].dropna().unique().tolist()
-
-        st.write("DEBUG: selected_tasks:", selected_tasks[:1])
-        st.write("---")
-        st.write("DEBUG: USED (needed) GWAs:", used_gwas)
-        st.write("DEBUG: USED (needed) IWAs:", used_iwas)
-        st.write("DEBUG: USED (needed) DWAs:", used_dwas)
-
-        # Store cleaned selections in session state
-        st.session_state[f"cleaned_gwas_{selected_title}"] = used_gwas
-        st.session_state[f"cleaned_iwas_{selected_title}"] = used_iwas
-        st.session_state[f"cleaned_dwas_{selected_title}"] = used_dwas
-
-        # Increment cleanup counter to change the key suffix, forcing checkboxes to recreate
-        cleanup_count = st.session_state.get(f"cleanup_count_{selected_title}", 0) + 1
-        st.session_state[f"cleanup_count_{selected_title}"] = cleanup_count
-        st.session_state[f"cleaned_flag_{selected_title}"] = True
-
-        st.success("✅ Cleaning up selections...")
-        st.rerun()
-    else:
-        st.warning("Please select some tasks first before cleaning up.")
+st.write("---")
 
 # --- Notes field ---
 notes_default = saved.get("notes", "") if saved else ""
