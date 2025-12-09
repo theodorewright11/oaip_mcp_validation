@@ -161,7 +161,7 @@ if existing is None or existing.empty or not set(expected_cols).issubset(existin
 
 # --- App UI ---
 st.title("MCP Classification Tool")
-
+st.write("---")
 st.markdown("### Overview")
 st.markdown("""
 This tool helps classify MCP (Model Context Protocol) servers by mapping them to relevant work activities and tasks.
