@@ -45,26 +45,26 @@ def multi_select_custom(label, options, selected=None, cols_per_row=3, key_suffi
     return [k for k, v in selections.items() if v]
 
 
-def check_password():
-    """Returns `True` if the user entered the correct password."""
-    if st.session_state.get("password_correct", False):
-        # already logged in — don't show input again
-        return True
+# def check_password():
+#     """Returns `True` if the user entered the correct password."""
+#     if st.session_state.get("password_correct", False):
+#         # already logged in — don't show input again
+#         return True
 
-    password = st.sidebar.text_input("Enter password", type="password")
-    secret_pass = str(st.secrets.get("app_password", "")).strip().strip('"')
+#     password = st.sidebar.text_input("Enter password", type="password")
+#     secret_pass = str(st.secrets.get("app_password", "")).strip().strip('"')
 
-    if password and password.strip() == secret_pass:
-        st.session_state["password_correct"] = True
-        st.sidebar.success("✅ Access granted")
-        st.rerun()  # 👈 updated here
-    elif password:
-        st.sidebar.error("❌ Incorrect password")
+#     if password and password.strip() == secret_pass:
+#         st.session_state["password_correct"] = True
+#         st.sidebar.success("✅ Access granted")
+#         st.rerun()  # 👈 updated here
+#     elif password:
+#         st.sidebar.error("❌ Incorrect password")
 
-    return False
+#     return False
 
-if not check_password():
-    st.stop()
+# if not check_password():
+#     st.stop()
 
 
 # --- Load static data ---
