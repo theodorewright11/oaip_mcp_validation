@@ -10,15 +10,22 @@ st.set_page_config(page_title="MCP Labeling Tool", layout="wide")
 st.markdown(
     """
     <style>
-    /* allow text selection inside widgets */
+    /* allow text selection */
     [data-testid="stMarkdownContainer"], [data-testid="stCheckbox"], label {
         user-select: text !important;
         cursor: text !important;
+    }
+
+    /* make checkbox text smaller */
+    label > div {
+        font-size: 0.85rem !important;
+        line-height: 1.1 !important;
     }
     </style>
     """,
     unsafe_allow_html=True,
 )
+
 
 
 def multi_select_custom(label, options, selected=None, cols_per_row=3, key_suffix=""):
@@ -211,7 +218,7 @@ if selected_title and not existing.empty:
 
 # --- Occupational Relevance Selection ---
 st.write("---")
-st.markdown("**Occupationally Relevant?**")
+st.markdown("**Occupationally Relevant**")
 st.markdown("*Does this MCP perform an activity that a human could reasonably be paid to do within the economy?*")
 
 # Load saved value
