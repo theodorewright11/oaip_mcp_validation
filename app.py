@@ -149,7 +149,7 @@ except Exception as e:
     st.warning(f"Could not load sheet for {user_choice}: {e}")
     existing = pd.DataFrame()
 
-expected_cols = ["timestamp","title","url","bucket","gwa","iwa","dwa","task", "notes"]
+expected_cols = ["timestamp","title","url","bucket","gwa","iwa","dwa","task","task_ratings","notes"]
 if existing is None or existing.empty or not set(expected_cols).issubset(existing.columns):
     existing = pd.DataFrame(columns=expected_cols)
 
@@ -196,7 +196,6 @@ gwa_defaults = [x for x in str(saved.get("gwa", "") or "").split("; ") if x in g
 # Check if there are cleaned selections in session state
 if f"cleaned_gwas_{selected_title}" in st.session_state:
     gwa_defaults = st.session_state[f"cleaned_gwas_{selected_title}"]
-    st.write(f"🧹 USING CLEANED GWA DEFAULTS: {gwa_defaults}")
 
 # Auto-add required GWAs from selected DWAs
 if f"auto_gwas_{selected_title}" in st.session_state:
@@ -321,6 +320,43 @@ selected_task_labels = multi_select_custom(
 )
 selected_tasks = [task_display_map[label] for label in selected_task_labels]
 
+# --- Task Automation Ratings ---
+st.write("---")
+st.write("**Rate Automation Potential (1-10):**")
+st.write("*For each selected task, rate how much this MCP could automate it (1=minimal, 10=complete automation)*")
+
+# Load saved ratings
+saved_task_ratings = {}
+if saved and "task_ratings" in saved and saved.get("task_ratings"):
+    # Parse saved ratings: "7; 9; 4" -> match with tasks by index
+    saved_tasks = [x.strip() for x in str(saved.get("task", "")).split(";") if x.strip()]
+    saved_ratings = [x.strip() for x in str(saved.get("task_ratings", "")).split(";") if x.strip()]
+
+    # Create a mapping of task -> rating
+    for i, task in enumerate(saved_tasks):
+        if i < len(saved_ratings):
+            try:
+                saved_task_ratings[task] = int(saved_ratings[i])
+            except:
+                saved_task_ratings[task] = 5  # Default if parsing fails
+
+# Create sliders for each selected task
+task_ratings = {}
+if selected_tasks:
+    for task in selected_tasks:
+        # Get saved rating or default to 5
+        default_rating = saved_task_ratings.get(task, 5)
+        rating = st.slider(
+            f"{task[:80]}...",  # Truncate long task names
+            min_value=1,
+            max_value=10,
+            value=default_rating,
+            key=f"rating_{hashlib.md5(task.encode()).hexdigest()[:8]}_{selected_title}"
+        )
+        task_ratings[task] = rating
+else:
+    st.info("Select tasks above to rate their automation potential.")
+
 # --- Clean Up Selections Button ---
 if st.button("🧹 Clean Up Unused Selections"):
     st.write("=== CLEANUP BUTTON CLICKED ===")
@@ -374,6 +410,9 @@ if st.button("💾 Save / Update Classification"):
     if not selected_title:
         st.error("Please select an example first.")
     else:
+        # Build task_ratings string in same order as selected_tasks
+        task_ratings_str = "; ".join([str(task_ratings.get(task, 5)) for task in selected_tasks])
+
         new_row = {
             "timestamp": datetime.now().isoformat(timespec="seconds"),
             "title": selected_title,
@@ -383,6 +422,7 @@ if st.button("💾 Save / Update Classification"):
             "iwa": "; ".join(selected_iwas),
             "dwa": "; ".join(selected_dwas),
             "task": "; ".join(selected_tasks),
+            "task_ratings": task_ratings_str,
             "notes": notes_text,
         }
 
