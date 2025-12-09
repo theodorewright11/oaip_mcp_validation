@@ -216,7 +216,7 @@ except Exception as e:
     st.warning(f"Could not load sheet for {user_choice}: {e}")
     existing = pd.DataFrame()
 
-expected_cols = ["timestamp","title","url","occ_relevant","gwa","iwa","dwa","task","task_ratings","notes"]
+expected_cols = ["timestamp","title","url","occ_relevant","gwa","iwa","dwa","task","deployability","workflow_auto","notes"]
 if existing is None or existing.empty or not set(expected_cols).issubset(existing.columns):
     existing = pd.DataFrame(columns=expected_cols)
 
@@ -466,43 +466,105 @@ if st.button("Clean Up Unused Selections"):
 
 st.write("---")
 
-# --- Task Automation Ratings ---
-st.write("### Rate Automation Potential (1-10)")
-st.write("*For each selected task, rate how much this MCP could automate it (1=minimal, 10=complete automation)*")
+# --- Slider 1: User Deployability ---
+st.write("### Slider 1: User Deployability")
+st.write("**Rate how much the person who currently does this task could directly use this MCP server to automate the given task, or how much it would require another actor (engineer, service, integrator) to make it usable?**")
 
-# Load saved ratings
-saved_task_ratings = {}
+with st.expander("📊 Scoring Guidelines"):
+    st.markdown("""
+    | Score Range | Category | Description | Example |
+    |-------------|----------|-------------|---------|
+    | **1–2** | Engineer-Dependent | Requires custom development, API integration, or backend infrastructure. End-user cannot access or configure it themselves. | An MCP that scrapes proprietary databases but requires OAuth setup, server hosting, and custom scripts. |
+    | **3–4** | IT / Technical Setup Required | Needs a technical person to configure, connect APIs, or set up workflows. Once configured, end-user might be able to use it, but can't deploy it alone. | An MCP that pulls data from internal systems but requires IT to grant permissions and configure endpoints. |
+    | **5–6** | Moderate Setup / Light Technical Skill | Requires some technical literacy (installing a plugin, following setup docs, basic configuration). Not plug-and-play, but doesn't require a software engineer. | A Gmail MCP that requires OAuth authentication and following short setup instructions. |
+    | **7–8** | Minimal Setup / Guided Onboarding | Simple onboarding such as sign-in, granting permissions, or choosing a few options. A typical worker with basic digital literacy can deploy it. | A calendar assistant MCP with a simple login and one-time permission prompt. |
+    | **9–10** | Plug-and-Play / Immediate Use | Zero setup — it just works. End-user can start using it immediately with no configuration or technical knowledge. | A web search MCP that's pre-enabled and executes commands instantly. |
+    """)
+
+# Load saved deployability ratings
+saved_deployability = {}
 if saved:
-    task_ratings_raw = saved.get("task_ratings", "")
-    if task_ratings_raw and str(task_ratings_raw) != "nan":
+    deployability_raw = saved.get("deployability", "")
+    if deployability_raw and str(deployability_raw) != "nan":
         # Parse saved ratings: "7; 9; 4" -> match with tasks by index
         saved_tasks = [x.strip() for x in str(saved.get("task", "")).split(";") if x.strip()]
-        saved_ratings = [x.strip() for x in str(task_ratings_raw).split(";") if x.strip()]
+        saved_ratings = [x.strip() for x in str(deployability_raw).split(";") if x.strip()]
 
         # Create a mapping of task -> rating
         for i, task in enumerate(saved_tasks):
             if i < len(saved_ratings):
                 try:
-                    saved_task_ratings[task] = int(saved_ratings[i])
+                    saved_deployability[task] = int(saved_ratings[i])
                 except:
-                    saved_task_ratings[task] = 5  # Default if parsing fails
+                    saved_deployability[task] = 5  # Default if parsing fails
 
 # Create sliders for each selected task
-task_ratings = {}
+deployability_ratings = {}
 if selected_tasks:
     for task in selected_tasks:
         # Get saved rating or default to 5
-        default_rating = saved_task_ratings.get(task, 5)
+        default_rating = saved_deployability.get(task, 5)
         rating = st.slider(
-            f"{task}",  # Truncate long task names
+            f"{task}",
             min_value=1,
             max_value=10,
             value=default_rating,
-            key=f"rating_{hashlib.md5(task.encode()).hexdigest()[:8]}_{selected_title}"
+            key=f"deployability_{hashlib.md5(task.encode()).hexdigest()[:8]}_{selected_title}"
         )
-        task_ratings[task] = rating
+        deployability_ratings[task] = rating
 else:
-    st.info("Select tasks above to rate their automation potential.")
+    st.info("Select tasks above to rate user deployability.")
+
+st.write("---")
+
+# --- Slider 2: Workflow Augmentation Potential ---
+st.write("### Slider 2: Workflow Augmentation Potential")
+st.write("**How much could this MCP contribute to task automation by automating parts of the workflow — even if it doesn't automate entire tasks on its own?**")
+
+with st.expander("📊 Scoring Guidelines"):
+    st.markdown("""
+    | Score Range | Category | Description | Example |
+    |-------------|----------|-------------|---------|
+    | **1–2** | Peripheral Enabler | Barely contributes to workflows in these areas. Might provide minor utility in edge cases, but not central to automation. | An authentication or token-refresh MCP connected to a broader workflow — necessary behind the scenes, but not impactful to the work itself. |
+    | **3–4** | Niche Contributor | Helps in specific, narrow scenarios within the workflow. Not widely applicable, but has some use cases. | A PDF text extraction MCP for document review tasks — useful, but only when PDFs are involved. |
+    | **5–6** | Moderate Building Block | Clear, practical contribution to workflows in these activities. Not the core automation driver, but a solid supporting component. | A file storage MCP for project coordination work — helps with document access but doesn't automate decision-making. |
+    | **7–8** | Significant Workflow Driver | Central to many workflows in these areas. Frequently needed, widely applicable, high leverage. | A database query MCP for data analysis tasks — core tool for accessing the information needed to complete work. |
+    | **9–10** | Core Automation Infrastructure | Foundational building block that enables many automation workflows. Without this, most automation in these activities would be much harder. | An email MCP for communication-heavy work activities — almost every automated workflow touches email. |
+    """)
+
+# Load saved workflow_auto ratings
+saved_workflow_auto = {}
+if saved:
+    workflow_auto_raw = saved.get("workflow_auto", "")
+    if workflow_auto_raw and str(workflow_auto_raw) != "nan":
+        # Parse saved ratings: "7; 9; 4" -> match with tasks by index
+        saved_tasks = [x.strip() for x in str(saved.get("task", "")).split(";") if x.strip()]
+        saved_ratings = [x.strip() for x in str(workflow_auto_raw).split(";") if x.strip()]
+
+        # Create a mapping of task -> rating
+        for i, task in enumerate(saved_tasks):
+            if i < len(saved_ratings):
+                try:
+                    saved_workflow_auto[task] = int(saved_ratings[i])
+                except:
+                    saved_workflow_auto[task] = 5  # Default if parsing fails
+
+# Create sliders for each selected task
+workflow_auto_ratings = {}
+if selected_tasks:
+    for task in selected_tasks:
+        # Get saved rating or default to 5
+        default_rating = saved_workflow_auto.get(task, 5)
+        rating = st.slider(
+            f"{task}",
+            min_value=1,
+            max_value=10,
+            value=default_rating,
+            key=f"workflow_auto_{hashlib.md5(task.encode()).hexdigest()[:8]}_{selected_title}"
+        )
+        workflow_auto_ratings[task] = rating
+else:
+    st.info("Select tasks above to rate workflow augmentation potential.")
 
 st.write("---")
 
@@ -524,8 +586,9 @@ if st.button("Save / Update Classification"):
     if not selected_title:
         st.error("Please select an example first.")
     else:
-        # Build task_ratings string in same order as selected_tasks
-        task_ratings_str = "; ".join([str(task_ratings.get(task, 5)) for task in selected_tasks])
+        # Build deployability and workflow_auto strings in same order as selected_tasks
+        deployability_str = "; ".join([str(deployability_ratings.get(task, 5)) for task in selected_tasks])
+        workflow_auto_str = "; ".join([str(workflow_auto_ratings.get(task, 5)) for task in selected_tasks])
 
         new_row = {
             "timestamp": datetime.now().isoformat(timespec="seconds"),
@@ -536,7 +599,8 @@ if st.button("Save / Update Classification"):
             "iwa": "; ".join(selected_iwas),
             "dwa": "; ".join(selected_dwas),
             "task": "; ".join(selected_tasks),
-            "task_ratings": task_ratings_str,
+            "deployability": deployability_str,
+            "workflow_auto": workflow_auto_str,
             "notes": notes_text,
         }
 
