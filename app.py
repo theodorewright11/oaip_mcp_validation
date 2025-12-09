@@ -519,7 +519,7 @@ st.write("---")
 
 # --- Slider 2: Workflow Augmentation Potential ---
 st.write("### Slider 2: Workflow Augmentation Potential")
-st.write("**How much could this MCP contribute to task automation by automating parts of the workflow — even if it doesn't automate entire tasks on its own?**")
+st.write("**Across the selected work activities (GWA, IWA, or DWA), how much could this MCP contribute to task automation by automating and/or augmenting parts of the workflow — even if it doesn't automate entire tasks on its own?**")
 
 with st.expander("📊 Scoring Guidelines"):
     st.markdown("""
@@ -532,39 +532,24 @@ with st.expander("📊 Scoring Guidelines"):
     | **9–10** | Core Automation Infrastructure | Foundational building block that enables many automation workflows. Without this, most automation in these activities would be much harder. | An email MCP for communication-heavy work activities — almost every automated workflow touches email. |
     """)
 
-# Load saved workflow_auto ratings
-saved_workflow_auto = {}
+# Load saved workflow_auto rating (single value)
+saved_workflow_auto_rating = 5  # Default
 if saved:
     workflow_auto_raw = saved.get("workflow_auto", "")
     if workflow_auto_raw and str(workflow_auto_raw) != "nan":
-        # Parse saved ratings: "7; 9; 4" -> match with tasks by index
-        saved_tasks = [x.strip() for x in str(saved.get("task", "")).split(";") if x.strip()]
-        saved_ratings = [x.strip() for x in str(workflow_auto_raw).split(";") if x.strip()]
+        try:
+            saved_workflow_auto_rating = int(workflow_auto_raw)
+        except:
+            saved_workflow_auto_rating = 5
 
-        # Create a mapping of task -> rating
-        for i, task in enumerate(saved_tasks):
-            if i < len(saved_ratings):
-                try:
-                    saved_workflow_auto[task] = int(saved_ratings[i])
-                except:
-                    saved_workflow_auto[task] = 5  # Default if parsing fails
-
-# Create sliders for each selected task
-workflow_auto_ratings = {}
-if selected_tasks:
-    for task in selected_tasks:
-        # Get saved rating or default to 5
-        default_rating = saved_workflow_auto.get(task, 5)
-        rating = st.slider(
-            f"{task}",
-            min_value=1,
-            max_value=10,
-            value=default_rating,
-            key=f"workflow_auto_{hashlib.md5(task.encode()).hexdigest()[:8]}_{selected_title}"
-        )
-        workflow_auto_ratings[task] = rating
-else:
-    st.info("Select tasks above to rate workflow augmentation potential.")
+# Single slider for overall workflow augmentation
+workflow_auto_rating = st.slider(
+    "Rate overall workflow augmentation potential",
+    min_value=1,
+    max_value=10,
+    value=saved_workflow_auto_rating,
+    key=f"workflow_auto_{selected_title}"
+)
 
 st.write("---")
 
@@ -586,9 +571,8 @@ if st.button("Save / Update Classification"):
     if not selected_title:
         st.error("Please select an example first.")
     else:
-        # Build deployability and workflow_auto strings in same order as selected_tasks
+        # Build deployability string in same order as selected_tasks
         deployability_str = "; ".join([str(deployability_ratings.get(task, 5)) for task in selected_tasks])
-        workflow_auto_str = "; ".join([str(workflow_auto_ratings.get(task, 5)) for task in selected_tasks])
 
         new_row = {
             "timestamp": datetime.now().isoformat(timespec="seconds"),
@@ -600,7 +584,7 @@ if st.button("Save / Update Classification"):
             "dwa": "; ".join(selected_dwas),
             "task": "; ".join(selected_tasks),
             "deployability": deployability_str,
-            "workflow_auto": workflow_auto_str,
+            "workflow_auto": str(workflow_auto_rating),
             "notes": notes_text,
         }
 
