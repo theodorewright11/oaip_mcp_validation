@@ -74,17 +74,7 @@ st.markdown(
         padding: 0 !important;
         margin: 0 !important;
     }
-    
-    /* Center-align checkbox text vertically with the checkbox square */
-    [data-testid="stCheckbox"] label {
-        display: flex !important;
-        align-items: center !important;   /* vertical centering */
-    }
 
-    /* Slight horizontal adjustment if needed */
-    [data-testid="stCheckbox"] label div {
-        padding-top: 1px !important;      /* fine-tune vertical alignment */
-    }
 
     </style>
     """,
