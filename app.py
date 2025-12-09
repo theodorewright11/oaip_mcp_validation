@@ -149,7 +149,7 @@ except Exception as e:
     st.warning(f"Could not load sheet for {user_choice}: {e}")
     existing = pd.DataFrame()
 
-expected_cols = ["timestamp","title","url","gwa","iwa","dwa","task","task_ratings","notes"]
+expected_cols = ["timestamp","title","url","occ_relevant","gwa","iwa","dwa","task","task_ratings","notes"]
 if existing is None or existing.empty or not set(expected_cols).issubset(existing.columns):
     existing = pd.DataFrame(columns=expected_cols)
 
@@ -164,9 +164,12 @@ st.title("MCP Classification Tool")
 st.write("---")
 st.markdown("### Overview")
 st.markdown("""
-This tool helps classify MCP (Model Context Protocol) servers by mapping them to relevant work activities and tasks.
-Select an MCP server below, then classify it by choosing the General Work Activities (GWA), Intermediate Work Activities (IWA),
-Detailed Work Activities (DWA), and specific Tasks it could automate. Then for each selected task, rate how much the MCP could automate it.
+This tool helps classify MCP (Model Context Protocol) servers — plugin-like systems that let AI assistants access external tools, APIs, or data sources to perform real-world tasks.
+
+**Your task:**
+1. **Determine if the MCP performs an occupationally relevant activity** — something a human could reasonably be paid to do within the economy
+2. If yes, **classify the work activities and tasks** it supports by selecting from General Work Activities (GWA), Intermediate Work Activities (IWA), Detailed Work Activities (DWA), and specific Tasks
+3. **Rate the automation potential** of each task on a scale of 1-10
 """)
 
 st.write("---")
@@ -182,10 +185,13 @@ if selected_title:
     st.write(f"**About:** {row['text_for_llm']}")
     # st.write(f"**Bucket:** {row['bucket']}")
 
-st.write("---")
-st.markdown("### Classification")
-st.markdown("*Select the work activities and tasks that this MCP server automates.*")
-st.write("---")
+    st.write("---")
+    st.markdown("### Classification Section")
+    st.markdown("""
+    **Step 1:** Determine if this MCP performs an **occupationally relevant activity** (something a person could be paid to do).
+
+    **Step 2:** If yes, classify by selecting work activities starting from GWA, then drilling down through IWA → DWA → Tasks.
+    """)
 
 # --- Load existing selection for this title ---
 saved = {}
@@ -203,6 +209,27 @@ if selected_title and not existing.empty:
 # st.write("Saved dict:", saved)
 # st.write("GWA from saved:", saved.get("gwa", ""))
 
+if selected_title:
+    # --- Occupational Relevance Selection ---
+    st.markdown("#### Occupationally Relevant?")
+    st.markdown("*Does this MCP perform an activity that a human could reasonably be paid to do within the economy?*")
+
+    # Load saved value
+    saved_occ_relevant = saved.get("occ_relevant", "") if saved else ""
+    if saved_occ_relevant in ["Yes", "No"]:
+        default_index = 0 if saved_occ_relevant == "Yes" else 1
+    else:
+        default_index = 0  # Default to "Yes"
+
+    occ_relevant = st.radio(
+        "Select one:",
+        options=["Yes", "No"],
+        index=default_index,
+        key=f"occ_relevant_{selected_title}",
+        horizontal=True
+    )
+
+    st.write("")  # Spacing
 
 # --- Dropdowns with pre-selected values ---
 gwas_options = sorted(df["gwa_title"].unique())
@@ -437,6 +464,7 @@ if st.button("Save / Update Classification"):
             "timestamp": datetime.now().isoformat(timespec="seconds"),
             "title": selected_title,
             "url": row["url"],
+            "occ_relevant": occ_relevant,
             "gwa": "; ".join(selected_gwas),
             "iwa": "; ".join(selected_iwas),
             "dwa": "; ".join(selected_dwas),
