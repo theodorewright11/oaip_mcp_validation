@@ -318,9 +318,18 @@ if button_clicked:
         st.session_state[f"cleaned_gwas_{selected_title}"] = used_gwas
         st.session_state[f"cleaned_iwas_{selected_title}"] = used_iwas
         st.session_state[f"cleaned_dwas_{selected_title}"] = used_dwas
-        # TEMPORARILY COMMENTED OUT TO SEE IF CODE RUNS
-        # st.rerun()
-        st.success("Cleanup button executed! (rerun disabled for testing)")
+
+        # Clear checkbox session state so they use the new cleaned defaults
+        # Find all keys that are checkboxes for GWA/IWA/DWA for this MCP
+        keys_to_delete = []
+        for key in list(st.session_state.keys()):
+            if selected_title in key and any(x in key for x in ["Select GWA", "Select IWA", "Select DWA"]):
+                keys_to_delete.append(key)
+
+        for key in keys_to_delete:
+            del st.session_state[key]
+
+        st.rerun()
     else:
         st.warning("Please select some tasks first before cleaning up.")
 
