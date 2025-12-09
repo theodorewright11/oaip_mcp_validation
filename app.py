@@ -400,7 +400,7 @@ if selected_tasks:
         # Get saved rating or default to 5
         default_rating = saved_task_ratings.get(task, 5)
         rating = st.slider(
-            f"{task[:200]}...",  # Truncate long task names
+            f"{task}",  # Truncate long task names
             min_value=1,
             max_value=10,
             value=default_rating,
