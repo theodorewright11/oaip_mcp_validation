@@ -185,13 +185,13 @@ if selected_title:
     st.write(f"**About:** {row['text_for_llm']}")
     # st.write(f"**Bucket:** {row['bucket']}")
 
-    st.write("---")
-    st.markdown("### Classification Section")
-    st.markdown("""
-    **Step 1:** Determine if this MCP performs an **occupationally relevant activity** (something a person could be paid to do).
+st.write("---")
+st.markdown("### Classification Section")
+st.markdown("""
+**Step 1:** Determine if this MCP performs an **occupationally relevant activity** (something a person could be paid to do).
 
-    **Step 2:** If yes, classify by selecting work activities starting from GWA, then drilling down through IWA → DWA → Tasks.
-    """)
+**Step 2:** If yes, classify by selecting work activities starting from GWA, then drilling down through IWA → DWA → Tasks.
+""")
 
 # --- Load existing selection for this title ---
 saved = {}
@@ -209,27 +209,28 @@ if selected_title and not existing.empty:
 # st.write("Saved dict:", saved)
 # st.write("GWA from saved:", saved.get("gwa", ""))
 
-if selected_title:
-    # --- Occupational Relevance Selection ---
-    st.markdown("#### Occupationally Relevant?")
-    st.markdown("*Does this MCP perform an activity that a human could reasonably be paid to do within the economy?*")
 
-    # Load saved value
-    saved_occ_relevant = saved.get("occ_relevant", "") if saved else ""
-    if saved_occ_relevant in ["Yes", "No"]:
-        default_index = 0 if saved_occ_relevant == "Yes" else 1
-    else:
-        default_index = 0  # Default to "Yes"
+# --- Occupational Relevance Selection ---
+st.write("---")
+st.markdown("##### Occupationally Relevant?")
+st.markdown("*Does this MCP perform an activity that a human could reasonably be paid to do within the economy?*")
 
-    occ_relevant = st.radio(
-        "Select one:",
-        options=["Yes", "No"],
-        index=default_index,
-        key=f"occ_relevant_{selected_title}",
-        horizontal=True
-    )
+# Load saved value
+saved_occ_relevant = saved.get("occ_relevant", "") if saved else ""
+if saved_occ_relevant in ["Yes", "No"]:
+    default_index = 0 if saved_occ_relevant == "Yes" else 1
+else:
+    default_index = 0  # Default to "Yes"
 
-    st.write("")  # Spacing
+occ_relevant = st.radio(
+    "Select one:",
+    options=["Yes", "No"],
+    index=default_index,
+    key=f"occ_relevant_{selected_title}",
+    horizontal=True
+)
+
+st.write("---")
 
 # --- Dropdowns with pre-selected values ---
 gwas_options = sorted(df["gwa_title"].unique())
