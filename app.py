@@ -182,10 +182,10 @@ if selected_title:
     st.write(f"**About:** {row['text_for_llm']}")
     # st.write(f"**Bucket:** {row['bucket']}")
 
-    st.write("---")
-    st.markdown("### Classification")
-    st.markdown("*Select the work activities and tasks that this MCP server automates.*")
-    st.write("")
+st.write("---")
+st.markdown("### Classification")
+st.markdown("*Select the work activities and tasks that this MCP server automates.*")
+st.write("")
 
 # --- Load existing selection for this title ---
 saved = {}
