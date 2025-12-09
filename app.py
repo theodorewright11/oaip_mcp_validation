@@ -131,7 +131,7 @@ def get_tasks(selected_dwas):
 conn = st.connection("gsheets", type=GSheetsConnection)
 
 # --- Team member selection ---
-st.sidebar.header("👥 Select Team Member")
+st.sidebar.header("Select Team Member")
 user_choice = st.sidebar.selectbox("Who are you?", ["Teddy", "Alice", "Eric"])
 
 sheet_urls = {
