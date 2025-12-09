@@ -27,20 +27,58 @@ st.set_page_config(page_title="MCP Labeling Tool", layout="wide")
 # )
 
 
+# st.markdown(
+#     """
+#     <style>
+#     /* allow text selection inside widgets */
+#     [data-testid="stMarkdownContainer"], [data-testid="stCheckbox"], label {
+#         user-select: text !important;
+#         cursor: text !important;
+#     }
+#     </style>
+#     """,
+#     unsafe_allow_html=True,
+# )
+
+
+
 st.markdown(
     """
     <style>
-    /* allow text selection inside widgets */
+    /* allow text selection */
     [data-testid="stMarkdownContainer"], [data-testid="stCheckbox"], label {
         user-select: text !important;
         cursor: text !important;
     }
+
+    /* Tighten checkbox spacing */
+    [data-testid="stCheckbox"] {
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+
+    [data-testid="stCheckbox"] > div {
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+
+    [data-testid="stCheckbox"] label {
+        gap: 4px !important;      /* reduces spacing between box and text */
+        padding: 0 !important;    
+        margin: 0 !important;
+    }
+
+    [data-testid="stCheckbox"] label div {
+        font-size: 0.85rem !important;
+        line-height: 1.0 !important;
+        padding: 0 !important;
+        margin: 0 !important;
+    }
+
     </style>
     """,
     unsafe_allow_html=True,
 )
-
-
 
 
 
