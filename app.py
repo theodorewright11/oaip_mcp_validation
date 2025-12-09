@@ -19,7 +19,7 @@ st.markdown(
     /* REAL checkbox label override */
     [data-testid="stCheckbox"] label div {
         font-size: 0.85rem !important;
-        line-height: 2 !important;
+        line-height: 1.1 !important;
     }
     </style>
     """,
