@@ -16,8 +16,8 @@ st.markdown(
         cursor: text !important;
     }
 
-    /* make checkbox text smaller */
-    label > div {
+    /* REAL checkbox label override */
+    [data-testid="stCheckbox"] label div {
         font-size: 0.85rem !important;
         line-height: 1.1 !important;
     }
@@ -25,6 +25,7 @@ st.markdown(
     """,
     unsafe_allow_html=True,
 )
+
 
 
 
