@@ -316,7 +316,7 @@ cleanup_count = st.session_state.get(f"cleanup_count_{selected_title}", 0)
 key_suffix_gwa = f"{selected_title}_v{cleanup_count}"
 
 # --- Custom GWA Checkboxes ---
-selected_gwas = multi_select_custom("Select GWA(s):", gwas_options, gwa_defaults, key_suffix=key_suffix_gwa)
+selected_gwas = multi_select_custom("🌐 Select GWA(s):", gwas_options, gwa_defaults, key_suffix=key_suffix_gwa)
 
 st.write("---")
 
@@ -347,7 +347,7 @@ iwa_display_map = dict(zip(iwa_labels, iwa_options))
 # --- Custom IWA Checkboxes ---
 key_suffix_iwa = f"{selected_title}_v{cleanup_count}"
 selected_iwa_labels = multi_select_custom(
-    "Select IWA(s):",
+    "📚 Select IWA(s):",
     [label for label in iwa_labels],
     [k for k, v in iwa_display_map.items() if v in iwa_defaults],
     key_suffix=key_suffix_iwa
@@ -379,7 +379,7 @@ dwa_display_map = dict(zip(dwa_labels, dwa_options))
 # --- Custom DWA Checkboxes ---
 key_suffix_dwa = f"{selected_title}_v{cleanup_count}"
 selected_dwa_labels = multi_select_custom(
-    "Select DWA(s):",
+    "📘 Select DWA(s):",
     [label for label in dwa_labels],
     [k for k, v in dwa_display_map.items() if v in dwa_defaults],
     key_suffix=key_suffix_dwa
@@ -430,7 +430,7 @@ task_display_map = dict(zip(task_labels, task_options))
 # --- Custom Task Checkboxes ---
 # Tasks should NOT get the cleaned suffix - they drive the cleanup!
 selected_task_labels = multi_select_custom(
-    "Select Task(s):",
+    "📖 Select Task(s):",
     [label for label in task_labels],
     [k for k, v in task_display_map.items() if v in task_defaults],
     key_suffix=selected_title
