@@ -542,23 +542,23 @@ if saved:
         except:
             saved_workflow_auto_rating = 5
 
-# Display selected work activities
+# Build slider label showing selected work activities
 selected_activities = []
 if selected_gwas:
-    selected_activities.append(f"**GWAs:** {', '.join(selected_gwas)}")
+    selected_activities.append(f"GWAs: {', '.join(selected_gwas)}")
 if selected_iwas:
-    selected_activities.append(f"**IWAs:** {', '.join(selected_iwas)}")
+    selected_activities.append(f"IWAs: {', '.join(selected_iwas)}")
 if selected_dwas:
-    selected_activities.append(f"**DWAs:** {', '.join(selected_dwas)}")
+    selected_activities.append(f"DWAs: {', '.join(selected_dwas)}")
 
 if selected_activities:
-    st.markdown(" | ".join(selected_activities))
+    slider_label = " | ".join(selected_activities)
 else:
-    st.info("No work activities selected yet")
+    slider_label = "Rate workflow augmentation (no activities selected yet)"
 
 # Single slider for overall workflow augmentation
 workflow_auto_rating = st.slider(
-    "Rate workflow augmentation across selected activities",
+    slider_label,
     min_value=1,
     max_value=10,
     value=saved_workflow_auto_rating,
