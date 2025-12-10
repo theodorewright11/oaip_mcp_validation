@@ -467,7 +467,7 @@ if st.button("🧹 Clean Up Unused Selections"):
 st.write("---")
 
 # --- Slider 1: User Deployability ---
-st.write("### Slider 1: User Deployability")
+st.write("### Slider 1: Deployability")
 st.write("*Rate how much the person who currently does this task could directly use this MCP server to automate the given task, or how much it would require another actor (engineer, service, integrator) to make it usable?*")
 
 with st.expander("📐 Scoring Guidelines"):
@@ -518,7 +518,7 @@ else:
 st.write("---")
 
 # --- Slider 2: Workflow Augmentation Potential ---
-st.write("### Slider 2: Workflow Augmentation Potential")
+st.write("### Slider 2: Workflow Automation")
 st.write("***Across the selected work activities (GWA, IWA, or DWA),*** *how much could this MCP contribute to task automation by automating and/or augmenting parts of the workflow — even if it doesn't automate entire tasks on its own?*")
 
 with st.expander("📐 Scoring Guidelines"):
@@ -542,9 +542,23 @@ if saved:
         except:
             saved_workflow_auto_rating = 5
 
+# Display selected work activities
+selected_activities = []
+if selected_gwas:
+    selected_activities.append(f"**GWAs:** {', '.join(selected_gwas)}")
+if selected_iwas:
+    selected_activities.append(f"**IWAs:** {', '.join(selected_iwas)}")
+if selected_dwas:
+    selected_activities.append(f"**DWAs:** {', '.join(selected_dwas)}")
+
+if selected_activities:
+    st.markdown(" | ".join(selected_activities))
+else:
+    st.info("No work activities selected yet")
+
 # Single slider for overall workflow augmentation
 workflow_auto_rating = st.slider(
-    "Rate overall workflow augmentation potential",
+    "Rate workflow augmentation across selected activities",
     min_value=1,
     max_value=10,
     value=saved_workflow_auto_rating,
