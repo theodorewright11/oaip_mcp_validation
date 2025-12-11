@@ -231,7 +231,7 @@ st.title("MCP Classification Tool")
 st.write("---")
 st.markdown("### Overview")
 st.markdown("""
-This tool helps classify MCP (Model Context Protocol) servers by mapping them to relevant work activities and tasks. 
+This tool allows for human classification of MCP (Model Context Protocol) servers by mapping them to relevant work activities and tasks. 
 Select an MCP server below and determine if it is occupationally relevant. 
 If it is, then classify it by choosing the General Work Activities (GWA), Intermediate Work Activities (IWA), 
 Detailed Work Activities (DWA), and specific Tasks it could automate. 
@@ -468,7 +468,7 @@ st.write("---")
 
 # --- Slider 1: User Deployability ---
 st.write("### Slider 1: Deployability")
-st.write("*Rate how much the person who currently does this task could directly use this MCP server to automate the given task, or how much it would require another actor (engineer, service, integrator) to make it usable?*")
+st.write("*Rate the level of technical setup or expertise required to use this MCP to automate the task.*")
 
 with st.expander("📐 Scoring Guidelines"):
     st.markdown("""
