@@ -474,8 +474,8 @@ with st.expander("📐 Scoring Guidelines"):
     st.markdown("""
     | Score Range | Category | Description | Example |
     |-------------|----------|-------------|---------|
-    | **1–2** | Engineer-Dependent | Requires custom development, API integration, or backend infrastructure. End-user cannot access or configure it themselves. | An MCP that scrapes proprietary databases but requires OAuth setup, server hosting, and custom scripts. |
-    | **3–4** | IT / Technical Setup Required | Needs a technical person to configure, connect APIs, or set up workflows. Once configured, end-user might be able to use it, but can't deploy it alone. | An MCP that pulls data from internal systems but requires IT to grant permissions and configure endpoints. |
+    | **1–2** | Engineer-Dependent | Requires custom development, API integration, or backend infrastructure. | An MCP that scrapes proprietary databases but requires OAuth setup, server hosting, and custom scripts. |
+    | **3–4** | IT / Technical Setup Required | Needs a technical person to configure, connect APIs, or set up workflows. | An MCP that pulls data from internal systems but requires IT to grant permissions and configure endpoints. |
     | **5–6** | Moderate Setup / Light Technical Skill | Requires some technical literacy (installing a plugin, following setup docs, basic configuration). Not plug-and-play, but doesn't require a software engineer. | A Gmail MCP that requires OAuth authentication and following short setup instructions. |
     | **7–8** | Minimal Setup / Guided Onboarding | Simple onboarding such as sign-in, granting permissions, or choosing a few options. A typical worker with basic digital literacy can deploy it. | A calendar assistant MCP with a simple login and one-time permission prompt. |
     | **9–10** | Plug-and-Play / Immediate Use | Zero setup — it just works. End-user can start using it immediately with no configuration or technical knowledge. | A web search MCP that's pre-enabled and executes commands instantly. |
